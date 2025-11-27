@@ -1,0 +1,200 @@
+import React, { useState, useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import './ComparatifPerformance.css';
+
+function getKPIData() {
+  const saved = localStorage.getItem('kpiFinanciers');
+  return saved ? JSON.parse(saved) : [];
+}
+
+export default function ComparatifPerformance() {
+  const kpiList = useMemo(() => getKPIData(), []);
+  const [selectedKPI, setSelectedKPI] = useState(0);
+
+  if (kpiList.length === 0) {
+    return (
+      <div className="comparatif-empty">
+        <h2>Aucun KPI enregistré</h2>
+        <p>Accédez à la page "KPI Financiers" pour saisir vos premières données.</p>
+      </div>
+    );
+  }
+
+  const current = kpiList[selectedKPI];
+  const mois = current.mois;
+
+  // Calcul des écarts
+  const ecarts = {
+    coutUtilisateur: {
+      value: Number(current.reel.coutUtilisateur) - Number(current.cible.coutUtilisateur),
+      label: 'Coût Utilisateur'
+    },
+    CPA: {
+      value: Number(current.reel.CPA) - Number(current.cible.CPA),
+      label: 'CPA'
+    },
+    transactions: {
+      value: Number(current.reel.transactions) - Number(current.cible.transactions),
+      label: 'Transactions'
+    },
+    panierMoyen: {
+      value: Number(current.reel.panierMoyen) - Number(current.cible.panierMoyen),
+      label: 'Panier Moyen'
+    },
+    volume: {
+      value: Number(current.reel.volume) - Number(current.cible.volume),
+      label: 'Volume'
+    },
+    benefices: {
+      value: Number(current.reel.benefices) - Number(current.cible.benefices),
+      label: 'Bénéfices'
+    }
+  };
+
+  // Données graphique
+  const chartData = [
+    {
+      name: 'Coût Utilisateur',
+      Cible: Number(current.cible.coutUtilisateur),
+      Réel: Number(current.reel.coutUtilisateur),
+      ecart: ecarts.coutUtilisateur.value
+    },
+    {
+      name: 'CPA',
+      Cible: Number(current.cible.CPA),
+      Réel: Number(current.reel.CPA),
+      ecart: ecarts.CPA.value
+    },
+    {
+      name: 'Transactions',
+      Cible: Number(current.cible.transactions),
+      Réel: Number(current.reel.transactions),
+      ecart: ecarts.transactions.value
+    },
+    {
+      name: 'Panier Moyen',
+      Cible: Number(current.cible.panierMoyen),
+      Réel: Number(current.reel.panierMoyen),
+      ecart: ecarts.panierMoyen.value
+    },
+    {
+      name: 'Volume',
+      Cible: Number(current.cible.volume),
+      Réel: Number(current.reel.volume),
+      ecart: ecarts.volume.value
+    },
+    {
+      name: 'Bénéfices',
+      Cible: Number(current.cible.benefices),
+      Réel: Number(current.reel.benefices),
+      ecart: ecarts.benefices.value
+    }
+  ];
+
+  return (
+    <div className="comparatif">
+      <h1>📊 Comparatif Performance Cible vs Réel</h1>
+
+      <div className="comparatif-selector">
+        <label>Sélectionner un mois :</label>
+        <select value={selectedKPI} onChange={(e) => setSelectedKPI(Number(e.target.value))}>
+          {kpiList.map((kpi, idx) => (
+            <option key={idx} value={idx}>
+              {kpi.mois}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="comparatif-chart">
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
+            <XAxis dataKey="name" stroke="#666" />
+            <YAxis stroke="#666" />
+            <Tooltip 
+              contentStyle={{ backgroundColor: '#fff', border: '1px solid #e0e7ff', borderRadius: '8px' }}
+              labelStyle={{ color: '#1a1a2e', fontWeight: 'bold' }}
+            />
+            <Legend />
+            <Bar dataKey="Cible" fill="#6366f1" radius={[8, 8, 0, 0]} />
+            <Bar dataKey="Réel" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="comparatif-ecarts">
+        <h2>📈 Analyse des Écarts</h2>
+        <div className="ecarts-grid">
+          {Object.entries(ecarts).map(([key, data]) => {
+            const isPositive = data.value > 0;
+            const isGood = (key === 'CPA' || key === 'coutUtilisateur') ? !isPositive : isPositive;
+            return (
+              <div key={key} className={`ecart-card ${isGood ? 'ecart-good' : 'ecart-bad'}`}>
+                <p className="ecart-label">{data.label}</p>
+                <p className="ecart-icon">{isGood ? '✅' : '⚠️'}</p>
+                <p className="ecart-value">{isPositive ? '+' : ''}{data.value.toFixed(2)}</p>
+                <p className="ecart-status">
+                  {isGood ? 'Dépassement positif' : 'Dépassement négatif'}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="comparatif-detailed">
+        <h2>📋 Détails Complets</h2>
+        <div className="detailed-table">
+          <div className="table-row table-header">
+            <div className="table-cell">Indicateur</div>
+            <div className="table-cell">Cible</div>
+            <div className="table-cell">Réel</div>
+            <div className="table-cell">Écart</div>
+            <div className="table-cell">% Écart</div>
+          </div>
+          {chartData.map((item, idx) => (
+            <div key={idx} className="table-row">
+              <div className="table-cell"><strong>{item.name}</strong></div>
+              <div className="table-cell">{item.Cible.toLocaleString()}</div>
+              <div className="table-cell">{item.Réel.toLocaleString()}</div>
+              <div className="table-cell" style={{ color: item.ecart > 0 ? '#ef4444' : '#10b981' }}>
+                {item.ecart > 0 ? '+' : ''}{item.ecart.toFixed(2)}
+              </div>
+              <div className="table-cell">
+                {item.Cible > 0 ? ((item.ecart / item.Cible) * 100).toFixed(1) : '0'}%
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="comparatif-insights">
+        <h2>💡 Insights</h2>
+        <div className="insights-list">
+          <div className="insight">
+            <p className="insight-title">🎯 Performance générale</p>
+            <p className="insight-text">
+              Basée sur les {Object.values(ecarts).filter(e => e.value < 0).length} indicateurs en dépassement positif 
+              et {Object.values(ecarts).filter(e => e.value > 0).length} en dépassement négatif.
+            </p>
+          </div>
+          <div className="insight">
+            <p className="insight-title">💰 Bénéfices</p>
+            <p className="insight-text">
+              Écart de {ecarts.benefices.value.toFixed(2)} F 
+              ({((ecarts.benefices.value / Number(current.cible.benefices)) * 100).toFixed(1)}%)
+            </p>
+          </div>
+          <div className="insight">
+            <p className="insight-title">📊 Actions recommandées</p>
+            <p className="insight-text">
+              {ecarts.CPA.value < 0 ? '✅ CPA en amélioration' : '⚠️ Optimiser le CPA'} - 
+              {ecarts.transactions.value >= 0 ? '✅ Transactions en hausse' : '⚠️ Revoir stratégie transactions'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
