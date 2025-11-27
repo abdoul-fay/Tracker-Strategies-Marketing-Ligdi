@@ -145,50 +145,71 @@ function KPIFinanciers() {
         </div>
         <button type="submit">Enregistrer</button>
       </form>
+      {/* Tableaux séparés Cible et Réel */}
       <div className="kpi-history">
-        <h3>Historique des KPI</h3>
+        <h3>📊 Historique KPI - Cible</h3>
         {kpiList.length === 0 ? <p>Aucune donnée enregistrée.</p> : (
           <table>
             <thead>
               <tr>
                 <th>Mois</th>
-                <th>Coût Utilisateur (Cible)</th>
-                <th>CPA (Cible)</th>
-                <th>Transactions (Cible)</th>
-                <th>Panier Moyen (Cible)</th>
-                <th>Volume (Cible)</th>
-                  <th>Bénéfice Brut (Cible)</th>
-                  <th>Bénéfices (Cible)</th>
-                <th>Dépenses (Cible)</th>
-                <th>Coût Utilisateur (Réel)</th>
-                <th>CPA (Réel)</th>
-                <th>Transactions (Réel)</th>
-                <th>Panier Moyen (Réel)</th>
-                <th>Volume (Réel)</th>
-                  <th>Bénéfice Brut (Réel)</th>
-                  <th>Bénéfices (Réel)</th>
-                <th>Dépenses (Réel)</th>
+                <th>Utilisateurs</th>
+                <th>CPA</th>
+                <th>Transactions</th>
+                <th>Panier Moyen</th>
+                <th>Volume</th>
+                <th>Bénéfice Brut</th>
+                <th>Bénéfice Réel</th>
+                <th>Dépenses</th>
               </tr>
             </thead>
             <tbody>
               {kpiList.map((kpi, idx) => (
-                <tr key={idx}>
-                  <td>{kpi.mois}</td>
+                <tr key={`cible-${idx}`}>
+                  <td><strong>{kpi.mois}</strong></td>
                   <td>{kpi.cible.coutUtilisateur}</td>
                   <td>{kpi.cible.CPA}</td>
                   <td>{kpi.cible.transactions}</td>
                   <td>{kpi.cible.panierMoyen}</td>
                   <td>{kpi.cible.volume}</td>
-                    <td>{kpi.cible.beneficeBrut}</td>
-                    <td>{kpi.cible.benefices}</td>
+                  <td>{kpi.cible.beneficeBrut}</td>
+                  <td>{kpi.cible.benefices}</td>
                   <td>{kpi.cible.depenses}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <div className="kpi-history">
+        <h3>📊 Historique KPI - Réel Obtenu</h3>
+        {kpiList.length === 0 ? <p>Aucune donnée enregistrée.</p> : (
+          <table>
+            <thead>
+              <tr>
+                <th>Mois</th>
+                <th>Utilisateurs</th>
+                <th>CPA</th>
+                <th>Transactions</th>
+                <th>Panier Moyen</th>
+                <th>Volume</th>
+                <th>Bénéfice Brut</th>
+                <th>Bénéfice Réel</th>
+                <th>Dépenses</th>
+              </tr>
+            </thead>
+            <tbody>
+              {kpiList.map((kpi, idx) => (
+                <tr key={`reel-${idx}`}>
+                  <td><strong>{kpi.mois}</strong></td>
                   <td>{kpi.reel.coutUtilisateur}</td>
                   <td>{kpi.reel.CPA}</td>
                   <td>{kpi.reel.transactions}</td>
                   <td>{kpi.reel.panierMoyen}</td>
                   <td>{kpi.reel.volume}</td>
-                    <td>{kpi.reel.beneficeBrut}</td>
-                    <td>{kpi.reel.benefices}</td>
+                  <td>{kpi.reel.beneficeBrut}</td>
+                  <td>{kpi.reel.benefices}</td>
                   <td>{kpi.reel.depenses}</td>
                 </tr>
               ))}
