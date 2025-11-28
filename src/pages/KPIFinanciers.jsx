@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { supabase, db } from '../lib/supabase';
 import './KPIFinanciers.css';
 
+// Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
+const formatNumber = (num) => {
+  const absNum = Math.abs(num);
+  if (absNum >= 1000000000) return (num / 1000000000).toFixed(1) + 'G';
+  if (absNum >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (absNum >= 1000) return (num / 1000).toFixed(1) + 'k';
+  return num.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+};
+
 const initialKPI = {
   mois: '',
   cible: {
@@ -302,14 +311,14 @@ function KPIFinanciers() {
                 return (
                 <tr key={`cible-${kpi.id}`}>
                   <td><strong>{kpi.mois}</strong></td>
-                  <td>{cible.coutUtilisateur}</td>
-                  <td>{cible.CPA}</td>
-                  <td>{cible.transactions}</td>
-                  <td>{cible.panierMoyen}</td>
-                  <td>{cible.volume}</td>
-                  <td>{cible.beneficeBrut}</td>
-                  <td>{cible.benefices}</td>
-                  <td>{cible.depenses}</td>
+                  <td>{formatNumber(Number(cible.coutUtilisateur))}</td>
+                  <td>{formatNumber(Number(cible.CPA))}</td>
+                  <td>{formatNumber(Number(cible.transactions))}</td>
+                  <td>{formatNumber(Number(cible.panierMoyen))}</td>
+                  <td>{formatNumber(Number(cible.volume))}</td>
+                  <td>{formatNumber(Number(cible.beneficeBrut))}</td>
+                  <td>{formatNumber(Number(cible.benefices))}</td>
+                  <td>{formatNumber(Number(cible.depenses))}</td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <button onClick={() => handleEdit(kpi)} className="btn-edit" title="Modifier">✏️</button>
                     <button onClick={() => handleDelete(kpi.id)} className="btn-delete" title="Supprimer">🗑️</button>
@@ -347,13 +356,19 @@ function KPIFinanciers() {
                 return (
                 <tr key={`reel-${kpi.id}`}>
                   <td><strong>{kpi.mois}</strong></td>
-                  <td>{reel.coutUtilisateur}</td>
-                  <td>{reel.CPA}</td>
-                  <td>{reel.transactions}</td>
-                  <td>{reel.panierMoyen}</td>
-                  <td>{reel.volume}</td>
-                  <td>{reel.beneficeBrut}</td>
-                  <td>{reel.benefices}</td>
+                  <td>{formatNumber(Number(reel.coutUtilisateur))}</td>
+                  <td>{formatNumber(Number(reel.CPA))}</td>
+                  <td>{formatNumber(Number(reel.transactions))}</td>
+                  <td>{formatNumber(Number(reel.panierMoyen))}</td>
+                  <td>{formatNumber(Number(reel.volume))}</td>
+                  <td>{formatNumber(Number(reel.beneficeBrut))}</td>
+                  <td>{formatNumber(Number(reel.benefices))}</td>
+                  <td>{formatNumber(Number(reel.depenses))}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <button onClick={() => handleEdit(kpi)} className="btn-edit" title="Modifier">✏️</button>
+                    <button onClick={() => handleDelete(kpi.id)} className="btn-delete" title="Supprimer">🗑️</button>
+                  </td>
+                </tr>
                   <td>{reel.depenses}</td>
                   <td style={{ whiteSpace: 'nowrap' }}>
                     <button onClick={() => handleEdit(kpi)} className="btn-edit" title="Modifier">✏️</button>

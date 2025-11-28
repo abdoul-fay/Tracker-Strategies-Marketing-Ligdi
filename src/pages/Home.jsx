@@ -3,10 +3,10 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { supabase } from '../lib/supabase';
 import './Home.css';
 
-// Formatteur de nombres: k, M, G seulement si > 8 chiffres
+// Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
 const formatNumber = (num) => {
   const absNum = Math.abs(num);
-  if (absNum >= 100000000) return (num / 1000000000).toFixed(1) + 'G';
+  if (absNum >= 1000000000) return (num / 1000000000).toFixed(1) + 'G';
   if (absNum >= 1000000) return (num / 1000000).toFixed(1) + 'M';
   if (absNum >= 1000) return (num / 1000).toFixed(1) + 'k';
   return num.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
@@ -58,13 +58,14 @@ export default function Home({ campagnes }) {
     let totalReal = 0;
     let totalROI = 0;
 
-    // Somme des budgets depuis tous les KPI
+    // Somme des budgets depuis tous les KPI (dépenses = budget)
     kpiList.forEach(kpi => {
       const cible = typeof kpi.cible === 'string' ? JSON.parse(kpi.cible) : (kpi.cible || {});
       const reel = typeof kpi.reel === 'string' ? JSON.parse(kpi.reel) : (kpi.reel || {});
-      totalBudget += Number(cible.budget || 0);
-      totalReal += Number(reel.budget || 0);
-      totalROI += Number(reel.roi || 0);
+      // Utiliser dépenses comme budget, et bénéfices comme ROI
+      totalBudget += Number(cible.depenses || 0);
+      totalReal += Number(reel.depenses || 0);
+      totalROI += Number(reel.benefices || 0);
     });
 
     const ecartMoyen = totalBudget > 0 ? ((totalReal / totalBudget - 1) * 100) : 0;

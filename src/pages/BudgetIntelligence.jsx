@@ -14,10 +14,10 @@ import {
   ConversationManager,
 } from '../lib/aiEngine'
 
-// Formatteur de nombres: k, M, G seulement si > 8 chiffres
+// Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
 const formatNumber = (num) => {
   const absNum = Math.abs(num);
-  if (absNum >= 100000000) return (num / 1000000000).toFixed(1) + 'G';
+  if (absNum >= 1000000000) return (num / 1000000000).toFixed(1) + 'G';
   if (absNum >= 1000000) return (num / 1000000).toFixed(1) + 'M';
   if (absNum >= 1000) return (num / 1000).toFixed(1) + 'k';
   return num.toLocaleString('fr-FR', { maximumFractionDigits: 0 });

@@ -16,7 +16,7 @@ export default function ComparatifPerformance() {
 
   // Charger les KPI depuis Supabase
   useEffect(() => {
-    const loadKPIs = async () => {
+    const loadKPIs = async (showLoader = false) => {
       try {
         const { data, error } = await supabase
           .from('kpi_financiers')
@@ -35,10 +35,11 @@ export default function ComparatifPerformance() {
         console.error('Erreur:', err);
       }
     };
-    loadKPIs();
+    
+    loadKPIs(true);
 
     // Polling toutes les 5 secondes
-    const interval = setInterval(loadKPIs, 5000);
+    const interval = setInterval(() => loadKPIs(false), 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -53,9 +54,10 @@ export default function ComparatifPerformance() {
 
   // Fonction pour formater les gros nombres
   const formatNumber = (num) => {
-    if (Math.abs(num) >= 1000000000) return (num / 1000000000).toFixed(1) + 'G';
-    if (Math.abs(num) >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (Math.abs(num) >= 1000) return (num / 1000).toFixed(1) + 'k';
+    const absNum = Math.abs(num);
+    if (absNum >= 1000000000) return (num / 1000000000).toFixed(1) + 'G';
+    if (absNum >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (absNum >= 1000) return (num / 1000).toFixed(1) + 'k';
     return num.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
   };
 
