@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase, db } from '../lib/supabase';
 import './KPIFinanciers.css';
 
 const initialKPI = {
@@ -41,15 +42,39 @@ function calcKPI(base) {
 }
 
 function KPIFinanciers() {
-  const [kpiList, setKpiList] = useState(() => {
-    const saved = localStorage.getItem('kpiFinanciers');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [kpiList, setKpiList] = useState([]);
   const [form, setForm] = useState(initialKPI);
+  const [loading, setLoading] = useState(true);
 
+  // Charger les KPI depuis Supabase au démarrage
   useEffect(() => {
-    localStorage.setItem('kpiFinanciers', JSON.stringify(kpiList));
-  }, [kpiList]);
+    loadKPIs();
+  }, []);
+
+  const loadKPIs = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('kpi_financiers')
+        .select('*')
+        .order('mois', { ascending: false });
+      
+      if (error) {
+        console.error('Erreur chargement KPI:', error);
+        // Fallback sur localStorage
+        const saved = localStorage.getItem('kpiFinanciers');
+        setKpiList(saved ? JSON.parse(saved) : []);
+      } else {
+        setKpiList(data || []);
+        // Garder localStorage comme backup
+        localStorage.setItem('kpiFinanciers', JSON.stringify(data || []));
+      }
+    } catch (err) {
+      console.error('Erreur Supabase:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Calculs automatiques pour cible et réel
   const autoCible = calcKPI(form.cible);
@@ -69,33 +94,57 @@ function KPIFinanciers() {
     setForm({ ...form, mois: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Enregistrer les valeurs calculées
-    const newForm = {
-      ...form,
-      cible: {
+    
+    // Préparer les données avec les valeurs calculées
+    const newKPI = {
+      mois: form.mois,
+      cible: JSON.stringify({
         ...form.cible,
         CPA: autoCible.CPA,
         panierMoyen: autoCible.panierMoyen,
         benefices: autoCible.benefices,
         beneficeBrut: autoCible.beneficeBrut
-      },
-      reel: {
+      }),
+      reel: JSON.stringify({
         ...form.reel,
         CPA: autoReel.CPA,
         panierMoyen: autoReel.panierMoyen,
         benefices: autoReel.benefices,
         beneficeBrut: autoReel.beneficeBrut
-      }
+      })
     };
-    setKpiList([newForm, ...kpiList]);
-    setForm(initialKPI);
+
+    try {
+      // Insérer dans Supabase
+      const { data, error } = await supabase
+        .from('kpi_financiers')
+        .insert([newKPI])
+        .select();
+
+      if (error) {
+        console.error('Erreur sauvegarde:', error);
+        alert('Erreur lors de la sauvegarde: ' + error.message);
+      } else {
+        console.log('KPI sauvegardé avec succès:', data);
+        setKpiList([data[0], ...kpiList]);
+        setForm(initialKPI);
+        alert('KPI enregistré avec succès!');
+        // Recharger depuis Supabase pour sync
+        loadKPIs();
+      }
+    } catch (err) {
+      console.error('Erreur:', err);
+      alert('Erreur: ' + err.message);
+    }
   };
 
   return (
     <div className="kpi-financiers-container">
       <h2>KPI Financiers Mensuels</h2>
+      {loading && <p style={{ color: '#666', fontStyle: 'italic' }}>Chargement des données...</p>}
+      
       <form className="kpi-form" onSubmit={handleSubmit}>
         <div>
           <label>Mois:</label>
@@ -143,7 +192,7 @@ function KPIFinanciers() {
               <input type="text" value={autoReel.benefices} readOnly />
           </div>
         </div>
-        <button type="submit">Enregistrer</button>
+        <button type="submit" disabled={loading}>Enregistrer</button>
       </form>
       {/* Tableaux séparés Cible et Réel */}
       <div className="kpi-history">
@@ -164,19 +213,23 @@ function KPIFinanciers() {
               </tr>
             </thead>
             <tbody>
-              {kpiList.map((kpi, idx) => (
+              {kpiList.map((kpi, idx) => {
+                const cible = typeof kpi.cible === 'string' ? JSON.parse(kpi.cible) : kpi.cible;
+                const reel = typeof kpi.reel === 'string' ? JSON.parse(kpi.reel) : kpi.reel;
+                return (
                 <tr key={`cible-${idx}`}>
                   <td><strong>{kpi.mois}</strong></td>
-                  <td>{kpi.cible.coutUtilisateur}</td>
-                  <td>{kpi.cible.CPA}</td>
-                  <td>{kpi.cible.transactions}</td>
-                  <td>{kpi.cible.panierMoyen}</td>
-                  <td>{kpi.cible.volume}</td>
-                  <td>{kpi.cible.beneficeBrut}</td>
-                  <td>{kpi.cible.benefices}</td>
-                  <td>{kpi.cible.depenses}</td>
+                  <td>{cible.coutUtilisateur}</td>
+                  <td>{cible.CPA}</td>
+                  <td>{cible.transactions}</td>
+                  <td>{cible.panierMoyen}</td>
+                  <td>{cible.volume}</td>
+                  <td>{cible.beneficeBrut}</td>
+                  <td>{cible.benefices}</td>
+                  <td>{cible.depenses}</td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         )}
@@ -200,19 +253,23 @@ function KPIFinanciers() {
               </tr>
             </thead>
             <tbody>
-              {kpiList.map((kpi, idx) => (
+              {kpiList.map((kpi, idx) => {
+                const cible = typeof kpi.cible === 'string' ? JSON.parse(kpi.cible) : kpi.cible;
+                const reel = typeof kpi.reel === 'string' ? JSON.parse(kpi.reel) : kpi.reel;
+                return (
                 <tr key={`reel-${idx}`}>
                   <td><strong>{kpi.mois}</strong></td>
-                  <td>{kpi.reel.coutUtilisateur}</td>
-                  <td>{kpi.reel.CPA}</td>
-                  <td>{kpi.reel.transactions}</td>
-                  <td>{kpi.reel.panierMoyen}</td>
-                  <td>{kpi.reel.volume}</td>
-                  <td>{kpi.reel.beneficeBrut}</td>
-                  <td>{kpi.reel.benefices}</td>
-                  <td>{kpi.reel.depenses}</td>
+                  <td>{reel.coutUtilisateur}</td>
+                  <td>{reel.CPA}</td>
+                  <td>{reel.transactions}</td>
+                  <td>{reel.panierMoyen}</td>
+                  <td>{reel.volume}</td>
+                  <td>{reel.beneficeBrut}</td>
+                  <td>{reel.benefices}</td>
+                  <td>{reel.depenses}</td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         )}
