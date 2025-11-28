@@ -2,6 +2,15 @@ import { useState, useEffect } from 'react'
 import './PlanMarketing.css'
 import { db } from '../lib/supabase'
 
+// Formatteur de nombres: k, M, G seulement si > 8 chiffres
+const formatNumber = (num) => {
+  const absNum = Math.abs(num);
+  if (absNum >= 100000000) return (num / 1000000000).toFixed(1) + 'G';
+  if (absNum >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (absNum >= 1000) return (num / 1000).toFixed(1) + 'k';
+  return num.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+};
+
 const CANAUX = ['Terrain', 'Radio', 'Digital', 'Influence', 'Parrainage', 'Autre']
 const ETATS = ['À venir', 'En cours', 'Terminé']
 
@@ -152,15 +161,15 @@ export default function PlanMarketing() {
       <div className="totals-row">
         <div className="total-item">
           <span>Budget Prévu Total:</span>
-          <strong>{totalBudget.toLocaleString()} FCFA</strong>
+          <strong>{formatNumber(totalBudget)} FCFA</strong>
         </div>
         <div className="total-item">
           <span>Budget Réel Total:</span>
-          <strong>{totalBudgetReel.toLocaleString()} FCFA</strong>
+          <strong>{formatNumber(totalBudgetReel)} FCFA</strong>
         </div>
         <div className="total-item">
           <span>ROI Total:</span>
-          <strong>{totalROI.toLocaleString()} FCFA</strong>
+          <strong>{formatNumber(totalROI)} FCFA</strong>
         </div>
       </div>
 
@@ -197,8 +206,8 @@ export default function PlanMarketing() {
                 <td>{campagne.action}</td>
                 <td><span className="badge">{campagne.canal}</span></td>
                 <td>{campagne.date_start}</td>
-                <td>{campagne.budget?.toLocaleString() || 0}</td>
-                <td>{campagne.budget_reel?.toLocaleString() || 0}</td>
+                <td>{formatNumber(campagne.budget || 0)}</td>
+                <td>{formatNumber(campagne.budget_reel || 0)}</td>
                 <td style={{ color: calcEcartBudget(campagne.budget, campagne.budget_reel) > 0 ? '#dc3545' : '#28a745', fontWeight: 'bold' }}>
                   {calcEcartBudget(campagne.budget, campagne.budget_reel)}%
                 </td>

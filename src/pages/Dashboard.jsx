@@ -6,6 +6,15 @@ import {
 import DashboardKPI from './DashboardKPI'
 import './Dashboard.css'
 
+// Formatteur de nombres: k, M, G seulement si > 8 chiffres
+const formatNumber = (num) => {
+  const absNum = Math.abs(num);
+  if (absNum >= 100000000) return (num / 1000000000).toFixed(1) + 'G';
+  if (absNum >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (absNum >= 1000) return (num / 1000).toFixed(1) + 'k';
+  return num.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+};
+
 const PERIODS = [
   { value: 'week', label: 'Hebdomadaire' },
   { value: 'month', label: 'Mensuel' },
@@ -69,11 +78,11 @@ export default function Dashboard({ campagnes }) {
       <div className="kpi-grid">
         <div className="kpi-card">
           <h3>Budget Total</h3>
-          <p className="value">{Object.values(stats.byMonth).reduce((sum, m) => sum + m.budget, 0).toLocaleString()} FCFA</p>
+          <p className="value">{formatNumber(Object.values(stats.byMonth).reduce((sum, m) => sum + m.budget, 0))} FCFA</p>
         </div>
         <div className="kpi-card">
           <h3>Budget Réel</h3>
-          <p className="value">{Object.values(stats.byMonth).reduce((sum, m) => sum + m.real, 0).toLocaleString()} FCFA</p>
+          <p className="value">{formatNumber(Object.values(stats.byMonth).reduce((sum, m) => sum + m.real, 0))} FCFA</p>
         </div>
         <div className="kpi-card">
           <h3>Nombre de Campagnes</h3>

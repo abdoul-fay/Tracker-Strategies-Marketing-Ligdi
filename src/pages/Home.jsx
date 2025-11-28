@@ -1,14 +1,19 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { supabase } from '../lib/supabase';
 import './Home.css';
 
-function getKPIData() {
-  const saved = localStorage.getItem('kpiFinanciers');
-  return saved ? JSON.parse(saved) : [];
-}
+// Formatteur de nombres: k, M, G seulement si > 8 chiffres
+const formatNumber = (num) => {
+  const absNum = Math.abs(num);
+  if (absNum >= 100000000) return (num / 1000000000).toFixed(1) + 'G';
+  if (absNum >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (absNum >= 1000) return (num / 1000).toFixed(1) + 'k';
+  return num.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+};
 
 export default function Home({ campagnes }) {
-  const kpiList = useMemo(() => getKPIData(), []);
+  const [kpiList, setKpiList] = useState([])
   const [stats, setStats] = useState({
     totalBudget: 0,
     totalReal: 0,
@@ -18,10 +23,47 @@ export default function Home({ campagnes }) {
     kpiCount: 0
   });
 
+  // Charger les KPI depuis Supabase
   useEffect(() => {
-    const totalBudget = campagnes.reduce((sum, c) => sum + (c.budget || 0), 0);
-    const totalReal = campagnes.reduce((sum, c) => sum + (c.budget_reel || 0), 0);
-    const totalROI = campagnes.reduce((sum, c) => sum + (c.roi || 0), 0);
+    const loadKPIs = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('kpi_financiers')
+          .select('*')
+          .order('mois', { ascending: false })
+        
+        if (error) {
+          console.error('Erreur chargement KPI:', error)
+          const saved = localStorage.getItem('kpiFinanciers')
+          setKpiList(saved ? JSON.parse(saved) : [])
+        } else {
+          setKpiList(data || [])
+        }
+      } catch (err) {
+        console.error('Erreur:', err)
+      }
+    }
+    loadKPIs()
+
+    const interval = setInterval(loadKPIs, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
+  // Calculer les stats à partir des KPI
+  useEffect(() => {
+    let totalBudget = 0;
+    let totalReal = 0;
+    let totalROI = 0;
+
+    // Somme des budgets depuis tous les KPI
+    kpiList.forEach(kpi => {
+      const cible = typeof kpi.cible === 'string' ? JSON.parse(kpi.cible) : (kpi.cible || {});
+      const reel = typeof kpi.reel === 'string' ? JSON.parse(kpi.reel) : (kpi.reel || {});
+      totalBudget += Number(cible.budget || 0);
+      totalReal += Number(reel.budget || 0);
+      totalROI += Number(reel.roi || 0);
+    });
+
     const ecartMoyen = totalBudget > 0 ? ((totalReal / totalBudget - 1) * 100) : 0;
 
     setStats({
@@ -32,7 +74,7 @@ export default function Home({ campagnes }) {
       campagnesCount: campagnes.length,
       kpiCount: kpiList.length
     });
-  }, [campagnes, kpiList]);
+  }, [kpiList, campagnes])
 
   // Données pour graphiques mini
   const byMonth = {};
@@ -73,7 +115,7 @@ export default function Home({ campagnes }) {
           <div className="stat-icon">💰</div>
           <div className="stat-info">
             <p className="stat-label">Budget Total</p>
-            <p className="stat-value">{stats.totalBudget.toLocaleString()} F</p>
+            <p className="stat-value">{formatNumber(stats.totalBudget)} F</p>
             <p className="stat-subtitle">Prévu et réel</p>
           </div>
         </div>
@@ -82,7 +124,7 @@ export default function Home({ campagnes }) {
           <div className="stat-icon">📈</div>
           <div className="stat-info">
             <p className="stat-label">ROI Estimé</p>
-            <p className="stat-value">{stats.totalROI.toLocaleString()} F</p>
+            <p className="stat-value">{formatNumber(stats.totalROI)} F</p>
             <p className="stat-subtitle">Retour sur investissement</p>
           </div>
         </div>
@@ -129,32 +171,38 @@ export default function Home({ campagnes }) {
         {latestKPI && (
           <div className="home-chart-card">
             <h2>💹 KPI Financiers Actuels ({latestKPI.mois})</h2>
-            <div className="kpi-mini-grid">
-              <div className="kpi-mini-item">
-                <p className="kpi-label">CPA (Cible)</p>
-                <p className="kpi-value">{latestKPI.cible.CPA || 'N/A'}</p>
-              </div>
-              <div className="kpi-mini-item">
-                <p className="kpi-label">CPA (Réel)</p>
-                <p className="kpi-value">{latestKPI.reel.CPA || 'N/A'}</p>
-              </div>
-              <div className="kpi-mini-item">
-                <p className="kpi-label">Panier Moyen (Cible)</p>
-                <p className="kpi-value">{latestKPI.cible.panierMoyen || 'N/A'}</p>
-              </div>
-              <div className="kpi-mini-item">
-                <p className="kpi-label">Panier Moyen (Réel)</p>
-                <p className="kpi-value">{latestKPI.reel.panierMoyen || 'N/A'}</p>
-              </div>
-              <div className="kpi-mini-item">
-                <p className="kpi-label">Bénéfices (Cible)</p>
-                <p className="kpi-value">{Number(latestKPI.cible.benefices).toLocaleString()} F</p>
-              </div>
-              <div className="kpi-mini-item">
-                <p className="kpi-label">Bénéfices (Réel)</p>
-                <p className="kpi-value">{Number(latestKPI.reel.benefices).toLocaleString()} F</p>
-              </div>
-            </div>
+            {(() => {
+              const cible = typeof latestKPI.cible === 'string' ? JSON.parse(latestKPI.cible) : (latestKPI.cible || {});
+              const reel = typeof latestKPI.reel === 'string' ? JSON.parse(latestKPI.reel) : (latestKPI.reel || {});
+              return (
+                <div className="kpi-mini-grid">
+                  <div className="kpi-mini-item">
+                    <p className="kpi-label">CPA (Cible)</p>
+                    <p className="kpi-value">{cible.CPA ? formatNumber(Number(cible.CPA)) : 'N/A'}</p>
+                  </div>
+                  <div className="kpi-mini-item">
+                    <p className="kpi-label">CPA (Réel)</p>
+                    <p className="kpi-value">{reel.CPA ? formatNumber(Number(reel.CPA)) : 'N/A'}</p>
+                  </div>
+                  <div className="kpi-mini-item">
+                    <p className="kpi-label">Panier Moyen (Cible)</p>
+                    <p className="kpi-value">{cible.panierMoyen ? formatNumber(Number(cible.panierMoyen)) : 'N/A'}</p>
+                  </div>
+                  <div className="kpi-mini-item">
+                    <p className="kpi-label">Panier Moyen (Réel)</p>
+                    <p className="kpi-value">{reel.panierMoyen ? formatNumber(Number(reel.panierMoyen)) : 'N/A'}</p>
+                  </div>
+                  <div className="kpi-mini-item">
+                    <p className="kpi-label">Bénéfices (Cible)</p>
+                    <p className="kpi-value">{formatNumber(Number(cible.benefices || 0))} F</p>
+                  </div>
+                  <div className="kpi-mini-item">
+                    <p className="kpi-label">Bénéfices (Réel)</p>
+                    <p className="kpi-value">{formatNumber(Number(reel.benefices || 0))} F</p>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 

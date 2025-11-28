@@ -1,6 +1,15 @@
 import { useState, useMemo } from 'react';
 import './BudgetGlobal.css';
 
+// Formatteur de nombres: k, M, G seulement si > 8 chiffres
+const formatNumber = (num) => {
+  const absNum = Math.abs(num);
+  if (absNum >= 100000000) return (num / 1000000000).toFixed(1) + 'G';
+  if (absNum >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (absNum >= 1000) return (num / 1000).toFixed(1) + 'k';
+  return num.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+};
+
 const PERIODS = [
   { value: 'week', label: 'Hebdomadaire' },
   { value: 'month', label: 'Mensuel' },
@@ -58,11 +67,11 @@ export default function BudgetGlobal({ campagnes = [] }) {
       <div className="budget-summary">
         <div className="summary-item">
           <h3>Budget Total Prévu</h3>
-          <p>{totalPrevx.toLocaleString()} FCFA</p>
+          <p>{formatNumber(totalPrevx)} FCFA</p>
         </div>
         <div className="summary-item">
           <h3>Budget Total Réel</h3>
-          <p>{totalReal.toLocaleString()} FCFA</p>
+          <p>{formatNumber(totalReal)} FCFA</p>
         </div>
         <div className="summary-item">
           <h3>Écart Global</h3>
@@ -70,7 +79,7 @@ export default function BudgetGlobal({ campagnes = [] }) {
         </div>
         <div className="summary-item">
           <h3>Économies / Dépassements</h3>
-          <p style={{ color: (totalReal - totalPrevx) > 0 ? '#dc3545' : '#28a745' }}>{(totalReal - totalPrevx).toLocaleString()} FCFA</p>
+          <p style={{ color: (totalReal - totalPrevx) > 0 ? '#dc3545' : '#28a745' }}>{formatNumber(totalReal - totalPrevx)} FCFA</p>
         </div>
       </div>
       <div className="budget-table">
@@ -94,9 +103,9 @@ export default function BudgetGlobal({ campagnes = [] }) {
               return (
                 <tr key={key}>
                   <td><strong>{key}</strong></td>
-                  <td>{data.budgetPrevx.toLocaleString()}</td>
-                  <td>{data.budgetReal.toLocaleString()}</td>
-                  <td style={{ color: ecart > 0 ? '#dc3545' : '#28a745' }}>{ecart.toLocaleString()}</td>
+                  <td>{formatNumber(data.budgetPrevx)}</td>
+                  <td>{formatNumber(data.budgetReal)}</td>
+                  <td style={{ color: ecart > 0 ? '#dc3545' : '#28a745' }}>{formatNumber(ecart)}</td>
                   <td style={{ color: ecartPct > 0 ? '#dc3545' : '#28a745' }}>{ecartPct}%</td>
                   <td>{statut}</td>
                 </tr>
@@ -125,8 +134,8 @@ export default function BudgetGlobal({ campagnes = [] }) {
                   return (
                     <tr key={`${key}-${canal}`}>
                       <td>{canal}</td>
-                      <td>{values.prevx.toLocaleString()}</td>
-                      <td>{values.real.toLocaleString()}</td>
+                      <td>{formatNumber(values.prevx)}</td>
+                      <td>{formatNumber(values.real)}</td>
                       <td style={{ color: ecart > 0 ? '#dc3545' : '#28a745' }}>{ecart}%</td>
                     </tr>
                   );
