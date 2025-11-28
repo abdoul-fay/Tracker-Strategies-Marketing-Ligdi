@@ -90,16 +90,21 @@ export default function App() {
                 ambassadeurs={ambassadeurs}
                 onAdd={async (amb) => {
                   try {
+                    console.log('🔄 Ajout ambassadeur:', amb)
                     const newAmb = await db.addAmbassador(amb)
+                    console.log('✅ Ambassadeur ajouté:', newAmb)
                     // Recharger immédiatement depuis Supabase pour avoir les données fraîches avec l'ID
                     const updatedAmbs = await db.getAmbassadors()
+                    console.log('📊 Ambassadeurs mis à jour:', updatedAmbs.length)
                     setAmbassadeurs(updatedAmbs)
                   } catch (err) {
-                    console.error('Erreur ajout ambassadeur:', err)
+                    console.error('❌ Erreur ajout ambassadeur:', err)
+                    alert('Erreur: ' + err.message)
                   }
                 }}
                 onUpdate={async (index, amb) => {
                   try {
+                    console.log('🔄 Mise à jour ambassadeur:', amb)
                     const id = ambassadeurs[index]?.id
                     if (id) {
                       await db.updateAmbassador(id, amb)
@@ -108,11 +113,13 @@ export default function App() {
                       setAmbassadeurs(updatedAmbs)
                     }
                   } catch (err) {
-                    console.error('Erreur mise à jour ambassadeur:', err)
+                    console.error('❌ Erreur mise à jour ambassadeur:', err)
+                    alert('Erreur: ' + err.message)
                   }
                 }}
                 onDelete={async (index) => {
                   try {
+                    console.log('🔄 Suppression ambassadeur:', index)
                     const id = ambassadeurs[index]?.id
                     if (id) {
                       await db.deleteAmbassador(id)
@@ -121,7 +128,8 @@ export default function App() {
                       setAmbassadeurs(updatedAmbs)
                     }
                   } catch (err) {
-                    console.error('Erreur suppression ambassadeur:', err)
+                    console.error('❌ Erreur suppression ambassadeur:', err)
+                    alert('Erreur: ' + err.message)
                   }
                 }}
               />
@@ -131,16 +139,21 @@ export default function App() {
                 strategies={strategies}
                 onAdd={async (str) => {
                   try {
+                    console.log('🔄 Ajout stratégie:', str)
                     const newStr = await db.addStrategy(str)
+                    console.log('✅ Stratégie ajoutée:', newStr)
                     // Recharger immédiatement depuis Supabase
                     const updatedStrats = await db.getStrategies()
+                    console.log('📊 Stratégies mises à jour:', updatedStrats.length)
                     setStrategies(updatedStrats)
                   } catch (err) {
-                    console.error('Erreur ajout stratégie:', err)
+                    console.error('❌ Erreur ajout stratégie:', err)
+                    alert('Erreur: ' + err.message)
                   }
                 }}
                 onUpdate={async (index, str) => {
                   try {
+                    console.log('🔄 Mise à jour stratégie:', str)
                     const id = strategies[index]?.id
                     if (id) {
                       await db.updateStrategy(id, str)
@@ -149,11 +162,13 @@ export default function App() {
                       setStrategies(updatedStrats)
                     }
                   } catch (err) {
-                    console.error('Erreur mise à jour stratégie:', err)
+                    console.error('❌ Erreur mise à jour stratégie:', err)
+                    alert('Erreur: ' + err.message)
                   }
                 }}
                 onDelete={async (index) => {
                   try {
+                    console.log('🔄 Suppression stratégie:', index)
                     const id = strategies[index]?.id
                     if (id) {
                       await db.deleteStrategy(id)
@@ -162,7 +177,8 @@ export default function App() {
                       setStrategies(updatedStrats)
                     }
                   } catch (err) {
-                    console.error('Erreur suppression stratégie:', err)
+                    console.error('❌ Erreur suppression stratégie:', err)
+                    alert('Erreur: ' + err.message)
                   }
                 }}
               />
