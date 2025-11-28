@@ -1,0 +1,248 @@
+.comparatif {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.comparatif h1 {
+  color: #6366f1;
+  font-size: 2rem;
+  margin-bottom: 32px;
+  font-weight: 800;
+}
+
+.comparatif-selector {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(60, 60, 120, 0.08);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.comparatif-selector label {
+  font-weight: 600;
+  color: #444;
+}
+
+.comparatif-selector select {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #e0e7ff;
+  font-size: 1rem;
+  cursor: pointer;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.comparatif-selector select:hover {
+  border-color: #6366f1;
+}
+
+.comparatif-selector select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.comparatif-chart {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(60, 60, 120, 0.08);
+  margin-bottom: 32px;
+}
+
+.comparatif-ecarts {
+  margin-bottom: 32px;
+}
+
+.comparatif-ecarts h2 {
+  color: #6366f1;
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+  font-weight: 700;
+}
+
+.ecarts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.ecart-card {
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(60, 60, 120, 0.08);
+  transition: all 0.3s ease;
+}
+
+.ecart-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(60, 60, 120, 0.12);
+}
+
+.ecart-good {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  border-left: 4px solid #10b981;
+}
+
+.ecart-bad {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border-left: 4px solid #ef4444;
+}
+
+.ecart-label {
+  color: #444;
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.ecart-icon {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.ecart-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+}
+
+.ecart-status {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+}
+
+.comparatif-detailed {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(60, 60, 120, 0.08);
+  margin-bottom: 32px;
+}
+
+.comparatif-detailed h2 {
+  color: #6366f1;
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+  font-weight: 700;
+}
+
+.detailed-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e0e7ff;
+}
+
+.table-header {
+  background: #f0f4f8;
+  border: 1px solid #e0e7ff;
+  font-weight: 700;
+  color: #6366f1;
+}
+
+.table-cell {
+  text-align: center;
+}
+
+.table-row:hover {
+  background: #f0f4f8;
+}
+
+.comparatif-insights {
+  background: linear-gradient(135deg, #f8fafc 0%, #f0f4f8 100%);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(60, 60, 120, 0.08);
+}
+
+.comparatif-insights h2 {
+  color: #6366f1;
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+  font-weight: 700;
+}
+
+.insights-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.insight {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(60, 60, 120, 0.06);
+  border-left: 4px solid #3b82f6;
+}
+
+.insight-title {
+  font-weight: 700;
+  color: #3b82f6;
+  margin-bottom: 10px;
+  margin-top: 0;
+  font-size: 1.05rem;
+}
+
+.insight-text {
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.comparatif-empty {
+  background: white;
+  border-radius: 16px;
+  padding: 60px 40px;
+  box-shadow: 0 4px 20px rgba(60, 60, 120, 0.08);
+  text-align: center;
+  color: #999;
+}
+
+.comparatif-empty h2 {
+  color: #6366f1;
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .comparatif h1 {
+    font-size: 1.5rem;
+  }
+
+  .table-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .table-header {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ecarts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-list {
+    grid-template-columns: 1fr;
+  }
+}
