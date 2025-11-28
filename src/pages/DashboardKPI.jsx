@@ -5,6 +5,15 @@ import {
 import { supabase } from '../lib/supabase'
 import './DashboardKPI.css'
 
+// Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
+const formatNumber = (num) => {
+  const absNum = Math.abs(num);
+  if (absNum >= 1000000000) return (num / 1000000000).toFixed(1) + 'G';
+  if (absNum >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (absNum >= 1000) return (num / 1000).toFixed(1) + 'k';
+  return num.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+};
+
 export default function DashboardKPI() {
   const [kpiList, setKpiList] = useState([])
   const [loading, setLoading] = useState(true)
@@ -105,27 +114,27 @@ export default function DashboardKPI() {
       <div className="dashboard-kpi-cards">
         <div className="dashboard-kpi-card">
           <h4>Écart Dépenses vs Bénéfices (Cible)</h4>
-          <p className="kpi-value">{ecartCible.toLocaleString()} F</p>
+          <p className="kpi-value">{formatNumber(ecartCible)} F</p>
         </div>
         <div className="dashboard-kpi-card">
           <h4>Écart Dépenses vs Bénéfices (Réel)</h4>
-          <p className="kpi-value">{ecartReel.toLocaleString()} F</p>
+          <p className="kpi-value">{formatNumber(ecartReel)} F</p>
         </div>
         <div className="dashboard-kpi-card">
           <h4>Bénéfice Brut (Cible)</h4>
-          <p className="kpi-value">{Number(parseCible.beneficeBrut || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} F</p>
+          <p className="kpi-value">{formatNumber(Number(parseCible.beneficeBrut || 0))} F</p>
         </div>
         <div className="dashboard-kpi-card">
           <h4>Bénéfice Brut (Réel)</h4>
-          <p className="kpi-value">{Number(parseReel.beneficeBrut || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} F</p>
+          <p className="kpi-value">{formatNumber(Number(parseReel.beneficeBrut || 0))} F</p>
         </div>
         <div className="dashboard-kpi-card">
           <h4>Bénéfice Réel (Cible)</h4>
-          <p className="kpi-value">{Number(parseCible.benefices || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} F</p>
+          <p className="kpi-value">{formatNumber(Number(parseCible.benefices || 0))} F</p>
         </div>
         <div className="dashboard-kpi-card">
           <h4>Bénéfice Réel (Réel)</h4>
-          <p className="kpi-value">{Number(parseReel.benefices || 0).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} F</p>
+          <p className="kpi-value">{formatNumber(Number(parseReel.benefices || 0))} F</p>
         </div>
       </div>
       <div className="dashboard-kpi-chart">
