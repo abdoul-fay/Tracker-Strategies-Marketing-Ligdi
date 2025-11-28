@@ -54,30 +54,34 @@ export default function ComparatifPerformance() {
   const current = kpiList[selectedKPI];
   const mois = current.mois;
 
+  // Parser les données JSON si nécessaire (Supabase retourne des objets ou strings)
+  const parseCible = typeof current.cible === 'string' ? JSON.parse(current.cible) : (current.cible || {});
+  const parseReel = typeof current.reel === 'string' ? JSON.parse(current.reel) : (current.reel || {});
+
   // Calcul des écarts
   const ecarts = {
     coutUtilisateur: {
-      value: Number(current.reel.coutUtilisateur) - Number(current.cible.coutUtilisateur),
+      value: Number(parseReel.coutUtilisateur || 0) - Number(parseCible.coutUtilisateur || 0),
       label: 'Coût Utilisateur'
     },
     CPA: {
-      value: Number(current.reel.CPA) - Number(current.cible.CPA),
+      value: Number(parseReel.CPA || 0) - Number(parseCible.CPA || 0),
       label: 'CPA'
     },
     transactions: {
-      value: Number(current.reel.transactions) - Number(current.cible.transactions),
+      value: Number(parseReel.transactions || 0) - Number(parseCible.transactions || 0),
       label: 'Transactions'
     },
     panierMoyen: {
-      value: Number(current.reel.panierMoyen) - Number(current.cible.panierMoyen),
+      value: Number(parseReel.panierMoyen || 0) - Number(parseCible.panierMoyen || 0),
       label: 'Panier Moyen'
     },
     volume: {
-      value: Number(current.reel.volume) - Number(current.cible.volume),
+      value: Number(parseReel.volume || 0) - Number(parseCible.volume || 0),
       label: 'Volume'
     },
     benefices: {
-      value: Number(current.reel.benefices) - Number(current.cible.benefices),
+      value: Number(parseReel.benefices || 0) - Number(parseCible.benefices || 0),
       label: 'Bénéfices'
     }
   };
@@ -86,38 +90,38 @@ export default function ComparatifPerformance() {
   const chartData = [
     {
       name: 'Coût Utilisateur',
-      Cible: Number(current.cible.coutUtilisateur),
-      Réel: Number(current.reel.coutUtilisateur),
+      Cible: Number(parseCible.coutUtilisateur || 0),
+      Réel: Number(parseReel.coutUtilisateur || 0),
       ecart: ecarts.coutUtilisateur.value
     },
     {
       name: 'CPA',
-      Cible: Number(current.cible.CPA),
-      Réel: Number(current.reel.CPA),
+      Cible: Number(parseCible.CPA || 0),
+      Réel: Number(parseReel.CPA || 0),
       ecart: ecarts.CPA.value
     },
     {
       name: 'Transactions',
-      Cible: Number(current.cible.transactions),
-      Réel: Number(current.reel.transactions),
+      Cible: Number(parseCible.transactions || 0),
+      Réel: Number(parseReel.transactions || 0),
       ecart: ecarts.transactions.value
     },
     {
       name: 'Panier Moyen',
-      Cible: Number(current.cible.panierMoyen),
-      Réel: Number(current.reel.panierMoyen),
+      Cible: Number(parseCible.panierMoyen || 0),
+      Réel: Number(parseReel.panierMoyen || 0),
       ecart: ecarts.panierMoyen.value
     },
     {
       name: 'Volume',
-      Cible: Number(current.cible.volume),
-      Réel: Number(current.reel.volume),
+      Cible: Number(parseCible.volume || 0),
+      Réel: Number(parseReel.volume || 0),
       ecart: ecarts.volume.value
     },
     {
       name: 'Bénéfices',
-      Cible: Number(current.cible.benefices),
-      Réel: Number(current.reel.benefices),
+      Cible: Number(parseCible.benefices || 0),
+      Réel: Number(parseReel.benefices || 0),
       ecart: ecarts.benefices.value
     }
   ];
