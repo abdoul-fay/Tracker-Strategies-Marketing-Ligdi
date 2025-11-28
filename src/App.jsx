@@ -82,25 +82,79 @@ export default function App() {
             {currentPage === 'ambassadeurs' && (
               <SuiviAmbassadeurs
                 ambassadeurs={ambassadeurs}
-                onAdd={(amb) => setAmbassadeurs([...ambassadeurs, amb])}
-                onUpdate={(index, amb) => {
-                  const newAmb = [...ambassadeurs]
-                  newAmb[index] = amb
-                  setAmbassadeurs(newAmb)
+                onAdd={async (amb) => {
+                  try {
+                    const newAmb = await db.addAmbassador(amb)
+                    setAmbassadeurs([newAmb, ...ambassadeurs])
+                  } catch (err) {
+                    console.error('Erreur ajout ambassadeur:', err)
+                    // Fallback: ajouter localement
+                    setAmbassadeurs([amb, ...ambassadeurs])
+                  }
                 }}
-                onDelete={(index) => setAmbassadeurs(ambassadeurs.filter((_, i) => i !== index))}
+                onUpdate={async (index, amb) => {
+                  try {
+                    const id = ambassadeurs[index]?.id
+                    if (id) {
+                      await db.updateAmbassador(id, amb)
+                    }
+                    const newAmb = [...ambassadeurs]
+                    newAmb[index] = amb
+                    setAmbassadeurs(newAmb)
+                  } catch (err) {
+                    console.error('Erreur mise à jour ambassadeur:', err)
+                  }
+                }}
+                onDelete={async (index) => {
+                  try {
+                    const id = ambassadeurs[index]?.id
+                    if (id) {
+                      await db.deleteAmbassador(id)
+                    }
+                    setAmbassadeurs(ambassadeurs.filter((_, i) => i !== index))
+                  } catch (err) {
+                    console.error('Erreur suppression ambassadeur:', err)
+                  }
+                }}
               />
             )}
             {currentPage === 'strategies' && (
               <Strategies
                 strategies={strategies}
-                onAdd={(str) => setStrategies([...strategies, str])}
-                onUpdate={(index, str) => {
-                  const newStr = [...strategies]
-                  newStr[index] = str
-                  setStrategies(newStr)
+                onAdd={async (str) => {
+                  try {
+                    const newStr = await db.addStrategy(str)
+                    setStrategies([newStr, ...strategies])
+                  } catch (err) {
+                    console.error('Erreur ajout stratégie:', err)
+                    // Fallback: ajouter localement
+                    setStrategies([str, ...strategies])
+                  }
                 }}
-                onDelete={(index) => setStrategies(strategies.filter((_, i) => i !== index))}
+                onUpdate={async (index, str) => {
+                  try {
+                    const id = strategies[index]?.id
+                    if (id) {
+                      await db.updateStrategy(id, str)
+                    }
+                    const newStr = [...strategies]
+                    newStr[index] = str
+                    setStrategies(newStr)
+                  } catch (err) {
+                    console.error('Erreur mise à jour stratégie:', err)
+                  }
+                }}
+                onDelete={async (index) => {
+                  try {
+                    const id = strategies[index]?.id
+                    if (id) {
+                      await db.deleteStrategy(id)
+                    }
+                    setStrategies(strategies.filter((_, i) => i !== index))
+                  } catch (err) {
+                    console.error('Erreur suppression stratégie:', err)
+                  }
+                }}
               />
             )}
             {currentPage === 'kpi' && (
