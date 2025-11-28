@@ -45,6 +45,8 @@ function KPIFinanciers() {
   const [kpiList, setKpiList] = useState([]);
   const [form, setForm] = useState(initialKPI);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const loadKPIs = async () => {
     try {
@@ -125,21 +127,79 @@ function KPIFinanciers() {
     };
 
     try {
-      // Insérer dans Supabase
-      const { data, error } = await supabase
+      if (editingId) {
+        // Mise à jour
+        const { data, error } = await supabase
+          .from('kpi_financiers')
+          .update(newKPI)
+          .eq('id', editingId)
+          .select();
+
+        if (error) {
+          console.error('Erreur mise à jour:', error);
+          alert('Erreur lors de la mise à jour: ' + error.message);
+        } else {
+          console.log('KPI mis à jour:', data);
+          alert('KPI modifié avec succès!');
+          setEditingId(null);
+          setShowEditModal(false);
+          setForm(initialKPI);
+          loadKPIs();
+        }
+      } else {
+        // Insertion nouvelle
+        const { data, error } = await supabase
+          .from('kpi_financiers')
+          .insert([newKPI])
+          .select();
+
+        if (error) {
+          console.error('Erreur sauvegarde:', error);
+          alert('Erreur lors de la sauvegarde: ' + error.message);
+        } else {
+          console.log('KPI sauvegardé avec succès:', data);
+          setKpiList([data[0], ...kpiList]);
+          setForm(initialKPI);
+          alert('KPI enregistré avec succès!');
+          // Recharger depuis Supabase pour sync
+          loadKPIs();
+        }
+      }
+    } catch (err) {
+      console.error('Erreur:', err);
+      alert('Erreur: ' + err.message);
+    }
+  };
+
+  const handleEdit = (kpi) => {
+    // Charger le KPI à éditer
+    const cible = typeof kpi.cible === 'string' ? JSON.parse(kpi.cible) : kpi.cible;
+    const reel = typeof kpi.reel === 'string' ? JSON.parse(kpi.reel) : kpi.reel;
+    
+    setForm({
+      mois: kpi.mois,
+      cible,
+      reel
+    });
+    setEditingId(kpi.id);
+    setShowEditModal(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce KPI ?')) return;
+
+    try {
+      const { error } = await supabase
         .from('kpi_financiers')
-        .insert([newKPI])
-        .select();
+        .delete()
+        .eq('id', id);
 
       if (error) {
-        console.error('Erreur sauvegarde:', error);
-        alert('Erreur lors de la sauvegarde: ' + error.message);
+        console.error('Erreur suppression:', error);
+        alert('Erreur lors de la suppression: ' + error.message);
       } else {
-        console.log('KPI sauvegardé avec succès:', data);
-        setKpiList([data[0], ...kpiList]);
-        setForm(initialKPI);
-        alert('KPI enregistré avec succès!');
-        // Recharger depuis Supabase pour sync
+        console.log('KPI supprimé');
+        alert('KPI supprimé avec succès!');
         loadKPIs();
       }
     } catch (err) {
@@ -148,12 +208,26 @@ function KPIFinanciers() {
     }
   };
 
+  const handleCancel = () => {
+    setForm(initialKPI);
+    setEditingId(null);
+    setShowEditModal(false);
+  };
+
   return (
     <div className="kpi-financiers-container">
       <h2>KPI Financiers Mensuels</h2>
       {loading && <p style={{ color: '#666', fontStyle: 'italic' }}>Chargement des données...</p>}
       
       <form className="kpi-form" onSubmit={handleSubmit}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3>{editingId ? '✏️ Modifier KPI' : '➕ Nouveau KPI'}</h3>
+          {editingId && (
+            <button type="button" onClick={handleCancel} className="btn-cancel">
+              Annuler
+            </button>
+          )}
+        </div>
         <div>
           <label>Mois:</label>
           <input type="month" value={form.mois} onChange={handleMoisChange} required />
@@ -200,7 +274,7 @@ function KPIFinanciers() {
               <input type="text" value={autoReel.benefices} readOnly />
           </div>
         </div>
-        <button type="submit" disabled={loading}>Enregistrer</button>
+        <button type="submit" disabled={loading}>{editingId ? 'Mettre à jour' : 'Enregistrer'}</button>
       </form>
       {/* Tableaux séparés Cible et Réel */}
       <div className="kpi-history">
@@ -218,14 +292,15 @@ function KPIFinanciers() {
                 <th>Bénéfice Brut</th>
                 <th>Bénéfice Réel</th>
                 <th>Dépenses</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {kpiList.map((kpi, idx) => {
+              {kpiList.map((kpi) => {
                 const cible = typeof kpi.cible === 'string' ? JSON.parse(kpi.cible) : kpi.cible;
                 const reel = typeof kpi.reel === 'string' ? JSON.parse(kpi.reel) : kpi.reel;
                 return (
-                <tr key={`cible-${idx}`}>
+                <tr key={`cible-${kpi.id}`}>
                   <td><strong>{kpi.mois}</strong></td>
                   <td>{cible.coutUtilisateur}</td>
                   <td>{cible.CPA}</td>
@@ -235,6 +310,10 @@ function KPIFinanciers() {
                   <td>{cible.beneficeBrut}</td>
                   <td>{cible.benefices}</td>
                   <td>{cible.depenses}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <button onClick={() => handleEdit(kpi)} className="btn-edit" title="Modifier">✏️</button>
+                    <button onClick={() => handleDelete(kpi.id)} className="btn-delete" title="Supprimer">🗑️</button>
+                  </td>
                 </tr>
                 );
               })}
@@ -258,14 +337,15 @@ function KPIFinanciers() {
                 <th>Bénéfice Brut</th>
                 <th>Bénéfice Réel</th>
                 <th>Dépenses</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {kpiList.map((kpi, idx) => {
+              {kpiList.map((kpi) => {
                 const cible = typeof kpi.cible === 'string' ? JSON.parse(kpi.cible) : kpi.cible;
                 const reel = typeof kpi.reel === 'string' ? JSON.parse(kpi.reel) : kpi.reel;
                 return (
-                <tr key={`reel-${idx}`}>
+                <tr key={`reel-${kpi.id}`}>
                   <td><strong>{kpi.mois}</strong></td>
                   <td>{reel.coutUtilisateur}</td>
                   <td>{reel.CPA}</td>
@@ -275,6 +355,10 @@ function KPIFinanciers() {
                   <td>{reel.beneficeBrut}</td>
                   <td>{reel.benefices}</td>
                   <td>{reel.depenses}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <button onClick={() => handleEdit(kpi)} className="btn-edit" title="Modifier">✏️</button>
+                    <button onClick={() => handleDelete(kpi.id)} className="btn-delete" title="Supprimer">🗑️</button>
+                  </td>
                 </tr>
                 );
               })}

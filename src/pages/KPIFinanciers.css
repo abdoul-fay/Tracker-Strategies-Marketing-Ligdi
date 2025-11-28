@@ -84,3 +84,45 @@
 .kpi-history tr:nth-child(even) {
   background: #f8fafc;
 }
+
+.btn-edit, .btn-delete, .btn-cancel {
+  padding: 6px 12px;
+  margin: 0 4px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.btn-edit {
+  background: #fbbf24;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.btn-edit:hover {
+  background: #f59e0b;
+  transform: scale(1.1);
+}
+
+.btn-delete {
+  background: #ef4444;
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-delete:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.btn-cancel {
+  background: #6b7280;
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-cancel:hover {
+  background: #4b5563;
+}
