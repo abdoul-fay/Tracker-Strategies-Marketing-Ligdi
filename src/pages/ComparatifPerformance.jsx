@@ -170,12 +170,14 @@ export default function ComparatifPerformance() {
         <div className="ecarts-grid">
           {Object.entries(ecarts).map(([key, data]) => {
             const isPositive = data.value > 0;
+            // Logique: Pour CPA et coûts, MOINS c'est mieux (négatif = bon)
+            // Pour volume, transactions, etc, PLUS c'est mieux (positif = bon)
             const isGood = (key === 'CPA' || key === 'coutUtilisateur') ? !isPositive : isPositive;
             return (
               <div key={key} className={`ecart-card ${isGood ? 'ecart-good' : 'ecart-bad'}`}>
                 <p className="ecart-label">{data.label}</p>
                 <p className="ecart-icon">{isGood ? '✅' : '⚠️'}</p>
-                <p className="ecart-value">{isPositive ? '+' : ''}{data.value.toFixed(2)}</p>
+                <p className="ecart-value">{isPositive ? '+' : ''}{data.value.toLocaleString('fr-FR', { maximumFractionDigits: 2 })}</p>
                 <p className="ecart-status">
                   {isGood ? 'Dépassement positif' : 'Dépassement négatif'}
                 </p>
@@ -198,13 +200,13 @@ export default function ComparatifPerformance() {
           {chartData.map((item, idx) => (
             <div key={idx} className="table-row">
               <div className="table-cell"><strong>{item.name}</strong></div>
-              <div className="table-cell">{item.Cible.toLocaleString()}</div>
-              <div className="table-cell">{item.Réel.toLocaleString()}</div>
-              <div className="table-cell" style={{ color: item.ecart > 0 ? '#ef4444' : '#10b981' }}>
-                {item.ecart > 0 ? '+' : ''}{item.ecart.toFixed(2)}
+              <div className="table-cell">{item.Cible.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</div>
+              <div className="table-cell">{item.Réel.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</div>
+              <div className="table-cell" style={{ color: item.ecart > 0 ? '#ef4444' : '#10b981', fontWeight: 'bold' }}>
+                {item.ecart > 0 ? '+' : ''}{item.ecart.toLocaleString('fr-FR', { maximumFractionDigits: 2 })}
               </div>
               <div className="table-cell">
-                {item.Cible > 0 ? ((item.ecart / item.Cible) * 100).toFixed(1) : '0'}%
+                {item.Cible > 0 ? ((item.ecart / item.Cible) * 100).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) : '0'}%
               </div>
             </div>
           ))}
@@ -217,15 +219,23 @@ export default function ComparatifPerformance() {
           <div className="insight">
             <p className="insight-title">🎯 Performance générale</p>
             <p className="insight-text">
-              Basée sur les {Object.values(ecarts).filter(e => e.value < 0).length} indicateurs en dépassement positif 
-              et {Object.values(ecarts).filter(e => e.value > 0).length} en dépassement négatif.
+              Basée sur les {Object.values(ecarts).filter(e => {
+                const key = Object.keys(ecarts).find(k => ecarts[k] === e);
+                return (key === 'CPA' || key === 'coutUtilisateur') ? e.value < 0 : e.value > 0;
+              }).length} indicateurs en amélioration 
+              et {Object.values(ecarts).filter(e => {
+                const key = Object.keys(ecarts).find(k => ecarts[k] === e);
+                return (key === 'CPA' || key === 'coutUtilisateur') ? e.value >= 0 : e.value <= 0;
+              }).length} en déclin.
             </p>
           </div>
           <div className="insight">
             <p className="insight-title">💰 Bénéfices</p>
             <p className="insight-text">
-              Écart de {ecarts.benefices.value.toFixed(2)} F 
-              ({((ecarts.benefices.value / Number(current.cible.benefices)) * 100).toFixed(1)}%)
+              Écart de {ecarts.benefices.value.toLocaleString('fr-FR', { maximumFractionDigits: 2 })} F 
+              ({parseCible.benefices && parseCible.benefices !== 0 
+                ? ((ecarts.benefices.value / parseCible.benefices) * 100).toLocaleString('fr-FR', { maximumFractionDigits: 1 })
+                : 'N/A'}%)
             </p>
           </div>
           <div className="insight">
