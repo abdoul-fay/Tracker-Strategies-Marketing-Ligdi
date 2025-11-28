@@ -46,19 +46,6 @@ function KPIFinanciers() {
   const [form, setForm] = useState(initialKPI);
   const [loading, setLoading] = useState(true);
 
-  // Charger les KPI depuis Supabase au démarrage
-  useEffect(() => {
-    loadKPIs();
-  }, []);
-
-  // Polling: recharger les KPI toutes les 2 secondes pour synchro en temps réel
-  useEffect(() => {
-    const interval = setInterval(() => {
-      loadKPIs();
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
   const loadKPIs = async () => {
     try {
       setLoading(true);
@@ -83,6 +70,19 @@ function KPIFinanciers() {
       setLoading(false);
     }
   };
+
+  // Charger les KPI depuis Supabase au démarrage
+  useEffect(() => {
+    loadKPIs();
+  }, []);
+
+  // Polling: recharger les KPI toutes les 2 secondes pour synchro en temps réel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadKPIs();
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Calculs automatiques pour cible et réel
   const autoCible = calcKPI(form.cible);
