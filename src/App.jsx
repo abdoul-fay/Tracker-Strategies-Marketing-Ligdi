@@ -51,7 +51,7 @@ export default function App() {
     loadData()
   }, [])
 
-  // Rafraîchir TOUTES les données toutes les 2 secondes (polling)
+  // Rafraîchir TOUTES les données toutes les 5 secondes (polling)
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
@@ -66,7 +66,7 @@ export default function App() {
       } catch (err) {
         console.error('Error refreshing data:', err)
       }
-    }, 2000)
+    }, 5000)
     
     return () => clearInterval(interval)
   }, [])

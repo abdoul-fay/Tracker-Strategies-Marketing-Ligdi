@@ -52,20 +52,17 @@ export default function Home({ campagnes }) {
     return () => clearInterval(interval)
   }, [])
 
-  // Calculer les stats à partir des KPI
+  // Calculer les stats à partir des campagnes du Plan Marketing
   useEffect(() => {
     let totalBudget = 0;
     let totalReal = 0;
     let totalROI = 0;
 
-    // Somme des budgets depuis tous les KPI (dépenses = budget)
-    kpiList.forEach(kpi => {
-      const cible = typeof kpi.cible === 'string' ? JSON.parse(kpi.cible) : (kpi.cible || {});
-      const reel = typeof kpi.reel === 'string' ? JSON.parse(kpi.reel) : (kpi.reel || {});
-      // Utiliser dépenses comme budget, et bénéfices comme ROI
-      totalBudget += Number(cible.depenses || 0);
-      totalReal += Number(reel.depenses || 0);
-      totalROI += Number(reel.benefices || 0);
+    // Somme depuis toutes les campagnes
+    campagnes.forEach(campagne => {
+      totalBudget += Number(campagne.budget || 0);
+      totalReal += Number(campagne.budget_reel || 0);
+      totalROI += Number(campagne.roi || 0);
     });
 
     const ecartMoyen = totalBudget > 0 ? ((totalReal / totalBudget - 1) * 100) : 0;
@@ -78,7 +75,7 @@ export default function Home({ campagnes }) {
       campagnesCount: campagnes.length,
       kpiCount: kpiList.length
     });
-  }, [kpiList, campagnes])
+  }, [campagnes, kpiList])
 
   // Données pour graphiques mini
   const byMonth = {};
