@@ -48,9 +48,9 @@ function KPIFinanciers() {
   const [editingId, setEditingId] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const loadKPIs = async () => {
+  const loadKPIs = async (showLoader = false) => {
     try {
-      setLoading(true);
+      if (showLoader) setLoading(true);
       const { data, error } = await supabase
         .from('kpi_financiers')
         .select('*')
@@ -69,19 +69,19 @@ function KPIFinanciers() {
     } catch (err) {
       console.error('Erreur Supabase:', err);
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   };
 
-  // Charger les KPI depuis Supabase au démarrage
+  // Charger les KPI depuis Supabase au démarrage (avec loader)
   useEffect(() => {
-    loadKPIs();
+    loadKPIs(true);
   }, []);
 
-  // Polling: recharger les KPI toutes les 5 secondes pour synchro en temps réel
+  // Polling: recharger les KPI toutes les 5 secondes pour synchro en temps réel (sans loader)
   useEffect(() => {
     const interval = setInterval(() => {
-      loadKPIs();
+      loadKPIs(false);
     }, 5000);
     return () => clearInterval(interval);
   }, []);

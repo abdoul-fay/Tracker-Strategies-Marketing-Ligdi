@@ -25,8 +25,9 @@ export default function Home({ campagnes }) {
 
   // Charger les KPI depuis Supabase
   useEffect(() => {
-    const loadKPIs = async () => {
+    const loadKPIs = async (showLoader = false) => {
       try {
+        if (showLoader) setLoading(true)
         const { data, error } = await supabase
           .from('kpi_financiers')
           .select('*')
@@ -41,11 +42,13 @@ export default function Home({ campagnes }) {
         }
       } catch (err) {
         console.error('Erreur:', err)
+      } finally {
+        if (showLoader) setLoading(false)
       }
     }
-    loadKPIs()
-
-    const interval = setInterval(loadKPIs, 5000)
+    
+    loadKPIs(true)
+    const interval = setInterval(() => loadKPIs(false), 5000)
     return () => clearInterval(interval)
   }, [])
 

@@ -11,9 +11,9 @@ export default function DashboardKPI() {
 
   // Charger les KPI depuis Supabase
   useEffect(() => {
-    const loadKPIs = async () => {
+    const loadKPIs = async (showLoader = false) => {
       try {
-        setLoading(true)
+        if (showLoader) setLoading(true)
         const { data, error } = await supabase
           .from('kpi_financiers')
           .select('*')
@@ -31,13 +31,15 @@ export default function DashboardKPI() {
       } catch (err) {
         console.error('Erreur:', err)
       } finally {
-        setLoading(false)
+        if (showLoader) setLoading(false)
       }
     }
-    loadKPIs()
+    
+    // Chargement initial avec loader
+    loadKPIs(true)
 
-    // Polling toutes les 5 secondes
-    const interval = setInterval(loadKPIs, 5000)
+    // Polling toutes les 5 secondes sans loader
+    const interval = setInterval(() => loadKPIs(false), 5000)
     return () => clearInterval(interval)
   }, [])
 
