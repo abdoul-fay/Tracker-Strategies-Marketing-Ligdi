@@ -369,12 +369,6 @@ function KPIFinanciers() {
                     <button onClick={() => handleDelete(kpi.id)} className="btn-delete" title="Supprimer">🗑️</button>
                   </td>
                 </tr>
-                  <td>{reel.depenses}</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>
-                    <button onClick={() => handleEdit(kpi)} className="btn-edit" title="Modifier">✏️</button>
-                    <button onClick={() => handleDelete(kpi.id)} className="btn-delete" title="Supprimer">🗑️</button>
-                  </td>
-                </tr>
                 );
               })}
             </tbody>
