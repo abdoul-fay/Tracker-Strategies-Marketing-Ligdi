@@ -51,6 +51,14 @@ export default function ComparatifPerformance() {
     );
   }
 
+  // Fonction pour formater les gros nombres
+  const formatNumber = (num) => {
+    if (Math.abs(num) >= 1000000000) return (num / 1000000000).toFixed(1) + 'G';
+    if (Math.abs(num) >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (Math.abs(num) >= 1000) return (num / 1000).toFixed(1) + 'k';
+    return num.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+  };
+
   const current = kpiList[selectedKPI];
   const mois = current.mois;
 
@@ -62,27 +70,39 @@ export default function ComparatifPerformance() {
   const ecarts = {
     coutUtilisateur: {
       value: Number(parseReel.coutUtilisateur || 0) - Number(parseCible.coutUtilisateur || 0),
-      label: 'Coût Utilisateur'
+      label: 'Coût Utilisateur',
+      // Pour coût: Réel < Cible = BON (vert), Réel > Cible = MAUVAIS (rouge)
+      isGood: Number(parseReel.coutUtilisateur || 0) <= Number(parseCible.coutUtilisateur || 0)
     },
     CPA: {
       value: Number(parseReel.CPA || 0) - Number(parseCible.CPA || 0),
-      label: 'CPA'
+      label: 'CPA',
+      // Pour CPA: Réel < Cible = BON (vert), Réel > Cible = MAUVAIS (rouge)
+      isGood: Number(parseReel.CPA || 0) <= Number(parseCible.CPA || 0)
     },
     transactions: {
       value: Number(parseReel.transactions || 0) - Number(parseCible.transactions || 0),
-      label: 'Transactions'
+      label: 'Transactions',
+      // Pour transactions: Réel > Cible = BON (vert), Réel < Cible = MAUVAIS (rouge)
+      isGood: Number(parseReel.transactions || 0) >= Number(parseCible.transactions || 0)
     },
     panierMoyen: {
       value: Number(parseReel.panierMoyen || 0) - Number(parseCible.panierMoyen || 0),
-      label: 'Panier Moyen'
+      label: 'Panier Moyen',
+      // Pour panier: Réel > Cible = BON (vert), Réel < Cible = MAUVAIS (rouge)
+      isGood: Number(parseReel.panierMoyen || 0) >= Number(parseCible.panierMoyen || 0)
     },
     volume: {
       value: Number(parseReel.volume || 0) - Number(parseCible.volume || 0),
-      label: 'Volume'
+      label: 'Volume',
+      // Pour volume: Réel > Cible = BON (vert), Réel < Cible = MAUVAIS (rouge)
+      isGood: Number(parseReel.volume || 0) >= Number(parseCible.volume || 0)
     },
     benefices: {
       value: Number(parseReel.benefices || 0) - Number(parseCible.benefices || 0),
-      label: 'Bénéfices'
+      label: 'Bénéfices',
+      // Pour bénéfices: Réel > Cible = BON (vert), Réel < Cible = MAUVAIS (rouge)
+      isGood: Number(parseReel.benefices || 0) >= Number(parseCible.benefices || 0)
     }
   };
 
@@ -169,17 +189,13 @@ export default function ComparatifPerformance() {
         <h2>📈 Analyse des Écarts</h2>
         <div className="ecarts-grid">
           {Object.entries(ecarts).map(([key, data]) => {
-            const isPositive = data.value > 0;
-            // Logique: Pour CPA et coûts, MOINS c'est mieux (négatif = bon)
-            // Pour volume, transactions, etc, PLUS c'est mieux (positif = bon)
-            const isGood = (key === 'CPA' || key === 'coutUtilisateur') ? !isPositive : isPositive;
             return (
-              <div key={key} className={`ecart-card ${isGood ? 'ecart-good' : 'ecart-bad'}`}>
+              <div key={key} className={`ecart-card ${data.isGood ? 'ecart-good' : 'ecart-bad'}`}>
                 <p className="ecart-label">{data.label}</p>
-                <p className="ecart-icon">{isGood ? '✅' : '⚠️'}</p>
-                <p className="ecart-value">{isPositive ? '+' : ''}{data.value.toLocaleString('fr-FR', { maximumFractionDigits: 2 })}</p>
+                <p className="ecart-icon">{data.isGood ? '✅' : '⚠️'}</p>
+                <p className="ecart-value">{data.value > 0 ? '+' : ''}{formatNumber(data.value)}</p>
                 <p className="ecart-status">
-                  {isGood ? 'Dépassement positif' : 'Dépassement négatif'}
+                  {data.isGood ? 'Dépassement positif' : 'Dépassement négatif'}
                 </p>
               </div>
             );
@@ -200,10 +216,10 @@ export default function ComparatifPerformance() {
           {chartData.map((item, idx) => (
             <div key={idx} className="table-row">
               <div className="table-cell"><strong>{item.name}</strong></div>
-              <div className="table-cell">{item.Cible.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</div>
-              <div className="table-cell">{item.Réel.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}</div>
-              <div className="table-cell" style={{ color: item.ecart > 0 ? '#ef4444' : '#10b981', fontWeight: 'bold' }}>
-                {item.ecart > 0 ? '+' : ''}{item.ecart.toLocaleString('fr-FR', { maximumFractionDigits: 2 })}
+              <div className="table-cell">{formatNumber(item.Cible)}</div>
+              <div className="table-cell">{formatNumber(item.Réel)}</div>
+              <div className="table-cell" style={{ color: item.Réel > item.Cible ? '#10b981' : '#ef4444', fontWeight: 'bold' }}>
+                {item.Réel > item.Cible ? '+' : ''}{formatNumber(item.ecart)}
               </div>
               <div className="table-cell">
                 {item.Cible > 0 ? ((item.ecart / item.Cible) * 100).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) : '0'}%
