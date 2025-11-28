@@ -15,7 +15,7 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
     titre: '',
     description: '',
     objectifs: '',
-    budgetTotal: 0,
+    budget_total: 0,
     canaux: '',
     versions: []
   })
@@ -32,7 +32,7 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
         titre: '',
         description: '',
         objectifs: '',
-        budgetTotal: 0,
+        budget_total: 0,
         canaux: '',
         versions: []
       })
@@ -47,7 +47,7 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
       titre: formData.titre,
       description: formData.description,
       objectifs: formData.objectifs,
-      budgetTotal: formData.budgetTotal,
+      budget_total: formData.budget_total,
       canaux: formData.canaux
     }
 
@@ -69,7 +69,7 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
     const { name, value } = e.target
     setFormData({
       ...formData,
-      [name]: (name === 'budgetTotal' || name === 'semaine' || name === 'mois') ? parseInt(value) || 0 : value
+      [name]: (name === 'budget_total' || name === 'semaine' || name === 'mois') ? parseInt(value) || 0 : value
     })
   }
 
@@ -121,7 +121,7 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
                             <p className="description">{strat.description}</p>
                             <div className="strategy-details">
                               <span className="detail-badge">🎯 {strat.objectifs}</span>
-                              <span className="detail-badge">💰 {strat.budgetTotal.toLocaleString()} F</span>
+                              <span className="detail-badge">💰 {strat.budget_total.toLocaleString()} F</span>
                             </div>
                             <div className="channels">
                               <span className="channel-badge">📢 {strat.canaux}</span>
@@ -243,8 +243,8 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
                 <label>Budget</label>
                 <input 
                   type="number" 
-                  name="budgetTotal" 
-                  value={formData.budgetTotal} 
+                  name="budget_total" 
+                  value={formData.budget_total} 
                   onChange={handleChange}
                 />
               </div>

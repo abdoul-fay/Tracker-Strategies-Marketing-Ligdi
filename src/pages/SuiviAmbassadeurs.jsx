@@ -7,9 +7,9 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
   const [formData, setFormData] = useState({
     ambassadeur: '',
     canal: 'Étudiant',
-    filleulsRecrutés: 0,
-    utilisateursActifs: 0,
-    récompenseTotal: 0,
+    filleuls_recrutes: 0,
+    utilisateurs_actifs: 0,
+    recompense_total: 0,
     commentaires: ''
   })
 
@@ -21,9 +21,9 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
       setFormData({
         ambassadeur: '',
         canal: 'Étudiant',
-        filleulsRecrutés: 0,
-        utilisateursActifs: 0,
-        récompenseTotal: 0,
+        filleuls_recrutes: 0,
+        utilisateurs_actifs: 0,
+        recompense_total: 0,
         commentaires: ''
       })
       setEditIndex(null)
@@ -56,9 +56,9 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
     return actifs > 0 ? (récompense / actifs).toFixed(0) : 0
   }
 
-  const totalFilleuls = ambassadeurs.reduce((sum, a) => sum + (a.filleulsRecrutés || 0), 0)
-  const totalActifs = ambassadeurs.reduce((sum, a) => sum + (a.utilisateursActifs || 0), 0)
-  const totalRécompense = ambassadeurs.reduce((sum, a) => sum + (a.récompenseTotal || 0), 0)
+  const totalFilleuls = ambassadeurs.reduce((sum, a) => sum + (a.filleuls_recrutes || 0), 0)
+  const totalActifs = ambassadeurs.reduce((sum, a) => sum + (a.utilisateurs_actifs || 0), 0)
+  const totalRécompense = ambassadeurs.reduce((sum, a) => sum + (a.recompense_total || 0), 0)
 
   return (
     <div className="suivi-ambassadeurs">
@@ -111,11 +111,11 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
               <tr key={idx}>
                 <td><strong>{amb.ambassadeur}</strong></td>
                 <td><span className="badge">{amb.canal}</span></td>
-                <td>{amb.filleulsRecrutés || 0}</td>
-                <td>{amb.utilisateursActifs || 0}</td>
-                <td>{calcTauxConversion(amb.filleulsRecrutés, amb.utilisateursActifs)}%</td>
-                <td>{(amb.récompenseTotal || 0).toLocaleString()}</td>
-                <td>{calcCoutAcquisition(amb.récompenseTotal, amb.utilisateursActifs)}</td>
+                <td>{amb.filleuls_recrutes || 0}</td>
+                <td>{amb.utilisateurs_actifs || 0}</td>
+                <td>{calcTauxConversion(amb.filleuls_recrutes, amb.utilisateurs_actifs)}%</td>
+                <td>{(amb.recompense_total || 0).toLocaleString()}</td>
+                <td>{calcCoutAcquisition(amb.recompense_total, amb.utilisateurs_actifs)}</td>
                 <td>
                   <button className="btn-secondary" onClick={() => handleOpen(idx)}>✏️</button>
                   <button className="btn-danger" onClick={() => onDelete(idx)}>🗑️</button>
@@ -160,8 +160,8 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
                 <label>Filleuls Recrutés</label>
                 <input 
                   type="number" 
-                  name="filleulsRecrutés" 
-                  value={formData.filleulsRecrutés} 
+                  name="filleuls_recrutes" 
+                  value={formData.filleuls_recrutes} 
                   onChange={handleChange}
                 />
               </div>
@@ -169,8 +169,8 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
                 <label>Utilisateurs Actifs</label>
                 <input 
                   type="number" 
-                  name="utilisateursActifs" 
-                  value={formData.utilisateursActifs} 
+                  name="utilisateurs_actifs" 
+                  value={formData.utilisateurs_actifs} 
                   onChange={handleChange}
                 />
               </div>
@@ -180,8 +180,8 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
               <label>Récompense Totale (F)</label>
               <input 
                 type="number" 
-                name="récompenseTotal" 
-                value={formData.récompenseTotal} 
+                name="recompense_total" 
+                value={formData.recompense_total} 
                 onChange={handleChange}
               />
             </div>
