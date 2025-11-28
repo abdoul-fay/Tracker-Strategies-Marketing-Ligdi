@@ -8,107 +8,111 @@ import SuiviAmbassadeurs from './pages/SuiviAmbassadeurs'
 import Strategies from './pages/Strategies'
 import KPIFinanciers from './pages/KPIFinanciers'
 import ComparatifPerformance from './pages/ComparatifPerformance'
+import BudgetIntelligence from './pages/BudgetIntelligence'
+import { db } from './lib/supabase'
 import './App.css'
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home')
-  const [data, setData] = useState({
-    campagnes: [],
-    ambassadeurs: [],
-    strategies: []
-  })
+  const [campagnes, setCampagnes] = useState([])
+  const [ambassadeurs, setAmbassadeurs] = useState([])
+  const [strategies, setStrategies] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  // Charger données du localStorage
+  // Charger les données de Supabase au démarrage
   useEffect(() => {
-    const saved = localStorage.getItem('ligdiData')
-    if (saved) {
-      setData(JSON.parse(saved))
+    const loadData = async () => {
+      try {
+        setLoading(true)
+        console.log('🔄 Chargement des données de Supabase...')
+        const [campagnesData, ambassadeursData, strategiesData] = await Promise.all([
+          db.getCampaigns(),
+          db.getAmbassadors(),
+          db.getStrategies()
+        ])
+        console.log('✅ Campagnes chargées:', campagnesData.length, campagnesData)
+        setCampagnes(campagnesData)
+        setAmbassadeurs(ambassadeursData)
+        setStrategies(strategiesData)
+      } catch (err) {
+        console.error('❌ Error loading data from Supabase:', err)
+        // Fallback to localStorage if Supabase fails
+        const saved = localStorage.getItem('ligdiData')
+        if (saved) {
+          const data = JSON.parse(saved)
+          setCampagnes(data.campagnes || [])
+          setAmbassadeurs(data.ambassadeurs || [])
+          setStrategies(data.strategies || [])
+        }
+      } finally {
+        setLoading(false)
+      }
     }
+    loadData()
   }, [])
 
-  // Sauvegarder données dans localStorage
+  // Rafraîchir les campagnes toutes les 3 secondes (polling)
   useEffect(() => {
-    localStorage.setItem('ligdiData', JSON.stringify(data))
-  }, [data])
-
-  const updateCampagne = (index, campagne) => {
-    const newCampagnes = [...data.campagnes]
-    newCampagnes[index] = campagne
-    setData({ ...data, campagnes: newCampagnes })
-  }
-
-  const addCampagne = (campagne) => {
-    setData({ ...data, campagnes: [...data.campagnes, campagne] })
-  }
-
-  const deleteCampagne = (index) => {
-    setData({ ...data, campagnes: data.campagnes.filter((_, i) => i !== index) })
-  }
-
-  const updateAmbassadeur = (index, ambassadeur) => {
-    const newAmbassadeurs = [...data.ambassadeurs]
-    newAmbassadeurs[index] = ambassadeur
-    setData({ ...data, ambassadeurs: newAmbassadeurs })
-  }
-
-  const addAmbassadeur = (ambassadeur) => {
-    setData({ ...data, ambassadeurs: [...data.ambassadeurs, ambassadeur] })
-  }
-
-  const deleteAmbassadeur = (index) => {
-    setData({ ...data, ambassadeurs: data.ambassadeurs.filter((_, i) => i !== index) })
-  }
-
-  const updateStrategie = (index, strategie) => {
-    const newStrategies = [...data.strategies]
-    newStrategies[index] = strategie
-    setData({ ...data, strategies: newStrategies })
-  }
-
-  const addStrategie = (strategie) => {
-    setData({ ...data, strategies: [...data.strategies, strategie] })
-  }
-
-  const deleteStrategie = (index) => {
-    setData({ ...data, strategies: data.strategies.filter((_, i) => i !== index) })
-  }
+    const interval = setInterval(async () => {
+      try {
+        const campagnesData = await db.getCampaigns()
+        setCampagnes(campagnesData)
+      } catch (err) {
+        console.error('Error refreshing campaigns:', err)
+      }
+    }, 3000)
+    
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className="app">
       <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
       <div className="container">
-        {currentPage === 'home' && <Home campagnes={data.campagnes} />}
-        {currentPage === 'plan' && (
-          <PlanMarketing 
-            campagnes={data.campagnes}
-            onAdd={addCampagne}
-            onUpdate={updateCampagne}
-            onDelete={deleteCampagne}
-          />
-        )}
-        {currentPage === 'dashboard' && <Dashboard campagnes={data.campagnes} />}
-        {currentPage === 'budget' && <BudgetGlobal campagnes={data.campagnes} />}
-        {currentPage === 'ambassadeurs' && (
-          <SuiviAmbassadeurs
-            ambassadeurs={data.ambassadeurs}
-            onAdd={addAmbassadeur}
-            onUpdate={updateAmbassadeur}
-            onDelete={deleteAmbassadeur}
-          />
-        )}
-        {currentPage === 'strategies' && (
-          <Strategies
-            strategies={data.strategies}
-            onAdd={addStrategie}
-            onUpdate={updateStrategie}
-            onDelete={deleteStrategie}
-          />
-        )}
-        {currentPage === 'kpi' && (
-          <KPIFinanciers />
-        )}
-        {currentPage === 'comparatif' && (
-          <ComparatifPerformance />
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            Chargement des données...
+          </div>
+        ) : (
+          <>
+            {currentPage === 'home' && <Home campagnes={campagnes} />}
+            {currentPage === 'plan' && <PlanMarketing />}
+            {currentPage === 'dashboard' && <Dashboard campagnes={campagnes} />}
+            {currentPage === 'budget' && <BudgetGlobal campagnes={campagnes} />}
+            {currentPage === 'ambassadeurs' && (
+              <SuiviAmbassadeurs
+                ambassadeurs={ambassadeurs}
+                onAdd={(amb) => setAmbassadeurs([...ambassadeurs, amb])}
+                onUpdate={(index, amb) => {
+                  const newAmb = [...ambassadeurs]
+                  newAmb[index] = amb
+                  setAmbassadeurs(newAmb)
+                }}
+                onDelete={(index) => setAmbassadeurs(ambassadeurs.filter((_, i) => i !== index))}
+              />
+            )}
+            {currentPage === 'strategies' && (
+              <Strategies
+                strategies={strategies}
+                onAdd={(str) => setStrategies([...strategies, str])}
+                onUpdate={(index, str) => {
+                  const newStr = [...strategies]
+                  newStr[index] = str
+                  setStrategies(newStr)
+                }}
+                onDelete={(index) => setStrategies(strategies.filter((_, i) => i !== index))}
+              />
+            )}
+            {currentPage === 'kpi' && (
+              <KPIFinanciers />
+            )}
+            {currentPage === 'comparatif' && (
+              <ComparatifPerformance />
+            )}
+            {currentPage === 'intelligence' && (
+              <BudgetIntelligence campagnes={campagnes} />
+            )}
+          </>
         )}
       </div>
     </div>

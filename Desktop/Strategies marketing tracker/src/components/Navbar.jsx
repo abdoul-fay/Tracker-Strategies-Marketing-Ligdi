@@ -71,6 +71,14 @@ export default function Navbar({ currentPage, setCurrentPage }) {
             Comparatif Performance
           </button>
         </li>
+        <li>
+          <button 
+            className={`nav-link ${currentPage === 'intelligence' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('intelligence')}
+          >
+            🤖 Budget Intelligence IA
+          </button>
+        </li>
       </ul>
     </nav>
   )
