@@ -2,6 +2,12 @@ import React, { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import './ComparatifPerformance.css';
 
+const PERIODS = [
+  { value: 'week', label: 'Hebdomadaire' },
+  { value: 'month', label: 'Mensuel' },
+  { value: 'year', label: 'Annuel' }
+];
+
 function getKPIData() {
   const saved = localStorage.getItem('kpiFinanciers');
   return saved ? JSON.parse(saved) : [];
@@ -10,6 +16,7 @@ function getKPIData() {
 export default function ComparatifPerformance() {
   const kpiList = useMemo(() => getKPIData(), []);
   const [selectedKPI, setSelectedKPI] = useState(0);
+  const [period, setPeriod] = useState('week');
 
   if (kpiList.length === 0) {
     return (
@@ -94,6 +101,13 @@ export default function ComparatifPerformance() {
   return (
     <div className="comparatif">
       <h1>📊 Comparatif Performance Cible vs Réel</h1>
+
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ fontWeight: 'bold', marginRight: 10 }}>Période :</label>
+        <select value={period} onChange={e => setPeriod(e.target.value)}>
+          {PERIODS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+        </select>
+      </div>
 
       <div className="comparatif-selector">
         <label>Sélectionner un mois :</label>

@@ -19,8 +19,8 @@ export default function Home({ campagnes }) {
   });
 
   useEffect(() => {
-    const totalBudget = campagnes.reduce((sum, c) => sum + (c.budgetPrevx || 0), 0);
-    const totalReal = campagnes.reduce((sum, c) => sum + (c.budgetReal || 0), 0);
+    const totalBudget = campagnes.reduce((sum, c) => sum + (c.budget || 0), 0);
+    const totalReal = campagnes.reduce((sum, c) => sum + (c.budget_reel || 0), 0);
     const totalROI = campagnes.reduce((sum, c) => sum + (c.roi || 0), 0);
     const ecartMoyen = totalBudget > 0 ? ((totalReal / totalBudget - 1) * 100) : 0;
 
@@ -37,12 +37,12 @@ export default function Home({ campagnes }) {
   // Données pour graphiques mini
   const byMonth = {};
   campagnes.forEach(c => {
-    const month = c.date ? c.date.substring(0, 7) : 'N/A';
+    const month = c.date_start ? c.date_start.substring(0, 7) : 'N/A';
     if (!byMonth[month]) {
       byMonth[month] = { budget: 0, real: 0, count: 0 };
     }
-    byMonth[month].budget += c.budgetPrevx || 0;
-    byMonth[month].real += c.budgetReal || 0;
+    byMonth[month].budget += c.budget || 0;
+    byMonth[month].real += c.budget_reel || 0;
     byMonth[month].count += 1;
   });
 

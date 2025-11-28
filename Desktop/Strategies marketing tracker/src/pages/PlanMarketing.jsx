@@ -1,76 +1,147 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './PlanMarketing.css'
+import { db } from '../lib/supabase'
 
 const CANAUX = ['Terrain', 'Radio', 'Digital', 'Influence', 'Parrainage', 'Autre']
 const ETATS = ['À venir', 'En cours', 'Terminé']
 
-export default function PlanMarketing({ campagnes, onAdd, onUpdate, onDelete }) {
+export default function PlanMarketing() {
+  const [campagnes, setCampagnes] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [showModal, setShowModal] = useState(false)
-  const [editIndex, setEditIndex] = useState(null)
+  const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState({
-    date: '',
+    name: '',
     action: '',
     canal: 'Terrain',
-    budgetPrevx: 0,
-    budgetReal: 0,
-    kpiCible: '',
-    kpiReal: '',
+    budget: 0,
+    budget_reel: 0,
+    kpi_cible: '',
+    kpi_reel: '',
     roi: 0,
     etat: 'À venir',
     responsable: '',
-    commentaires: ''
+    date_start: '',
+    date_end: ''
   })
 
-  const handleOpen = (index = null) => {
-    if (index !== null) {
-      setFormData(campagnes[index])
-      setEditIndex(index)
+  // Load campaigns from Supabase
+  useEffect(() => {
+    const loadCampagnes = async () => {
+      try {
+        setLoading(true)
+        const data = await db.getCampaigns()
+        setCampagnes(data)
+        setError(null)
+      } catch (err) {
+        setError(err.message)
+        console.error('Error loading campaigns:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadCampagnes()
+  }, [])
+
+  const handleOpen = (id = null) => {
+    if (id) {
+      const campaign = campagnes.find(c => c.id === id)
+      if (campaign) {
+        setFormData(campaign)
+        setEditingId(id)
+      }
     } else {
       setFormData({
-        date: '',
+        name: '',
         action: '',
         canal: 'Terrain',
-        budgetPrevx: 0,
-        budgetReal: 0,
-        kpiCible: '',
-        kpiReal: '',
+        budget: 0,
+        budget_reel: 0,
+        kpi_cible: '',
+        kpi_reel: '',
         roi: 0,
         etat: 'À venir',
         responsable: '',
-        commentaires: ''
+        date_start: '',
+        date_end: ''
       })
-      setEditIndex(null)
+      setEditingId(null)
     }
     setShowModal(true)
   }
 
-  const handleSave = () => {
-    if (editIndex !== null) {
-      onUpdate(editIndex, formData)
-    } else {
-      onAdd(formData)
+  const handleSave = async () => {
+    try {
+      if (editingId) {
+        await db.updateCampaign(editingId, formData)
+        setCampagnes(campagnes.map(c => c.id === editingId ? { ...c, ...formData } : c))
+      } else {
+        const newCampaign = await db.addCampaign(formData)
+        setCampagnes([newCampaign, ...campagnes])
+      }
+      setShowModal(false)
+      setError(null)
+    } catch (err) {
+      setError(err.message)
+      console.error('Error saving campaign:', err)
     }
-    setShowModal(false)
+  }
+
+  const handleDelete = async (id) => {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette campagne ?')) {
+      try {
+        await db.deleteCampaign(id)
+        setCampagnes(campagnes.filter(c => c.id !== id))
+        setError(null)
+      } catch (err) {
+        setError(err.message)
+        console.error('Error deleting campaign:', err)
+      }
+    }
   }
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData({
       ...formData,
-      [name]: name.includes('budget') || name === 'roi' ? parseFloat(value) || 0 : value
+      [name]: (name === 'budget' || name === 'roi') ? parseFloat(value) || 0 : value
     })
   }
 
-  const calcEcartBudget = (prevx, real) => {
-    if (prevx === 0) return 0
-    return ((real / prevx - 1) * 100).toFixed(2)
+  const totalBudget = campagnes.reduce((sum, c) => sum + (c.budget || 0), 0)
+  const totalBudgetReel = campagnes.reduce((sum, c) => sum + (c.budget_reel || 0), 0)
+  const totalROI = campagnes.reduce((sum, c) => sum + (c.roi || 0), 0)
+
+  const calcTaux = (cible, reel) => {
+    if (!cible || cible === 0 || cible === '0') return 0
+    const cibleNum = typeof cible === 'string' ? parseInt(cible) : cible
+    const reelNum = typeof reel === 'string' ? parseInt(reel) : reel
+    if (isNaN(cibleNum) || isNaN(reelNum)) return 0
+    return ((reelNum / cibleNum) * 100).toFixed(1)
   }
 
-  const totalBudgetPrevx = campagnes.reduce((sum, c) => sum + (c.budgetPrevx || 0), 0)
-  const totalBudgetReal = campagnes.reduce((sum, c) => sum + (c.budgetReal || 0), 0)
+  const calcCoutParUser = (budget, kpiReel) => {
+    if (!budget || budget === 0 || !kpiReel || kpiReel === '0') return 0
+    const budgetNum = typeof budget === 'string' ? parseFloat(budget) : budget
+    const reelNum = typeof kpiReel === 'string' ? parseInt(kpiReel) : kpiReel
+    if (isNaN(budgetNum) || isNaN(reelNum)) return 0
+    return (budgetNum / reelNum).toFixed(2)
+  }
+
+  const calcEcartBudget = (prevu, reel) => {
+    if (!prevu || prevu === 0 || prevu === '0') return 0
+    const prevuNum = typeof prevu === 'string' ? parseFloat(prevu) : prevu
+    const reelNum = typeof reel === 'string' ? parseFloat(reel) : reel
+    if (isNaN(prevuNum) || isNaN(reelNum)) return 0
+    return ((reelNum - prevuNum) / prevuNum * 100).toFixed(1)
+  }
 
   return (
     <div className="plan-marketing">
+      {error && <div className="error-message">⚠️ {error}</div>}
+      {loading && <div className="loading">Chargement des campagnes...</div>}
+
       <div className="header-section">
         <h1>📋 Plan Marketing</h1>
         <button className="btn-primary" onClick={() => handleOpen()}>
@@ -81,17 +152,15 @@ export default function PlanMarketing({ campagnes, onAdd, onUpdate, onDelete }) 
       <div className="totals-row">
         <div className="total-item">
           <span>Budget Prévu Total:</span>
-          <strong>{totalBudgetPrevx.toLocaleString()} FCFA</strong>
+          <strong>{totalBudget.toLocaleString()} FCFA</strong>
         </div>
         <div className="total-item">
           <span>Budget Réel Total:</span>
-          <strong>{totalBudgetReal.toLocaleString()} FCFA</strong>
+          <strong>{totalBudgetReel.toLocaleString()} FCFA</strong>
         </div>
         <div className="total-item">
-          <span>Écart:</span>
-          <strong style={{ color: calcEcartBudget(totalBudgetPrevx, totalBudgetReal) > 0 ? '#dc3545' : '#28a745' }}>
-            {calcEcartBudget(totalBudgetPrevx, totalBudgetReal)}%
-          </strong>
+          <span>ROI Total:</span>
+          <strong>{totalROI.toLocaleString()} FCFA</strong>
         </div>
       </div>
 
@@ -99,35 +168,50 @@ export default function PlanMarketing({ campagnes, onAdd, onUpdate, onDelete }) 
         <table>
           <thead>
             <tr>
-              <th>Date</th>
+              <th>Nom</th>
               <th>Action</th>
               <th>Canal</th>
+              <th>Date Début</th>
               <th>Budget Prévu</th>
               <th>Budget Réel</th>
+              <th>Écart %</th>
               <th>KPI Cible</th>
               <th>KPI Réel</th>
-              <th>ROI</th>
+              <th>% Atteint</th>
+              <th>Coût/User</th>
               <th>État</th>
-              <th>Responsable</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {campagnes.map((campagne, idx) => (
-              <tr key={idx}>
-                <td>{campagne.date}</td>
+            {!loading && campagnes.length === 0 && (
+              <tr>
+                <td colSpan="13" style={{ textAlign: 'center', color: '#999' }}>
+                  Aucune campagne. Ajoutez-en une pour commencer.
+                </td>
+              </tr>
+            )}
+            {campagnes.map((campagne) => (
+              <tr key={campagne.id}>
+                <td>{campagne.name}</td>
                 <td>{campagne.action}</td>
                 <td><span className="badge">{campagne.canal}</span></td>
-                <td>{campagne.budgetPrevx.toLocaleString()}</td>
-                <td>{campagne.budgetReal.toLocaleString()}</td>
-                <td>{campagne.kpiCible}</td>
-                <td>{campagne.kpiReal}</td>
-                <td>{campagne.roi}</td>
-                <td><span className={`status ${campagne.etat.toLowerCase()}`}>{campagne.etat}</span></td>
-                <td>{campagne.responsable}</td>
+                <td>{campagne.date_start}</td>
+                <td>{campagne.budget?.toLocaleString() || 0}</td>
+                <td>{campagne.budget_reel?.toLocaleString() || 0}</td>
+                <td style={{ color: calcEcartBudget(campagne.budget, campagne.budget_reel) > 0 ? '#dc3545' : '#28a745', fontWeight: 'bold' }}>
+                  {calcEcartBudget(campagne.budget, campagne.budget_reel)}%
+                </td>
+                <td>{campagne.kpi_cible || '-'}</td>
+                <td>{campagne.kpi_reel || '-'}</td>
+                <td style={{ color: calcTaux(campagne.kpi_cible, campagne.kpi_reel) >= 100 ? '#28a745' : '#dc3545', fontWeight: 'bold' }}>
+                  {calcTaux(campagne.kpi_cible, campagne.kpi_reel)}%
+                </td>
+                <td>{campagne.budget_reel && campagne.kpi_reel ? calcCoutParUser(campagne.budget_reel, campagne.kpi_reel) + ' FCFA' : '-'}</td>
+                <td><span className={`status ${campagne.etat?.toLowerCase() || ''}`}>{campagne.etat || 'À venir'}</span></td>
                 <td>
-                  <button className="btn-secondary" onClick={() => handleOpen(idx)}>✏️</button>
-                  <button className="btn-danger" onClick={() => onDelete(idx)}>🗑️</button>
+                  <button className="btn-secondary" onClick={() => handleOpen(campagne.id)}>✏️</button>
+                  <button className="btn-danger" onClick={() => handleDelete(campagne.id)}>🗑️</button>
                 </td>
               </tr>
             ))}
@@ -139,17 +223,17 @@ export default function PlanMarketing({ campagnes, onAdd, onUpdate, onDelete }) 
         <div className="modal active">
           <div className="modal-content">
             <div className="modal-header">
-              {editIndex !== null ? 'Éditer Campagne' : 'Nouvelle Campagne'}
+              {editingId ? 'Éditer Campagne' : 'Nouvelle Campagne'}
             </div>
 
             <div className="form-group">
-              <label>Date</label>
-              <input type="date" name="date" value={formData.date} onChange={handleChange} />
+              <label>Nom</label>
+              <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Ex: Sortie Terrain Bobo" />
             </div>
 
             <div className="form-group">
               <label>Action</label>
-              <input type="text" name="action" value={formData.action} onChange={handleChange} placeholder="Ex: Sortie terrain Bobo-Dioulasso" />
+              <input type="text" name="action" value={formData.action} onChange={handleChange} placeholder="Ex: Distribution, Activation" />
             </div>
 
             <div className="form-group">
@@ -161,47 +245,59 @@ export default function PlanMarketing({ campagnes, onAdd, onUpdate, onDelete }) 
 
             <div className="form-row">
               <div className="form-group">
-                <label>Budget Prévu (FCFA)</label>
-                <input type="number" name="budgetPrevx" value={formData.budgetPrevx} onChange={handleChange} />
+                <label>Date Début</label>
+                <input type="date" name="date_start" value={formData.date_start} onChange={handleChange} />
               </div>
               <div className="form-group">
-                <label>Budget Réel (FCFA)</label>
-                <input type="number" name="budgetReal" value={formData.budgetReal} onChange={handleChange} />
+                <label>Date Fin</label>
+                <input type="date" name="date_end" value={formData.date_end} onChange={handleChange} />
               </div>
             </div>
 
+            <hr style={{ margin: '20px 0', borderColor: '#ddd' }} />
+            <h4 style={{ marginBottom: '15px' }}>📋 Objectifs (Avant)</h4>
+
             <div className="form-row">
               <div className="form-group">
+                <label>Budget Prévu (FCFA)</label>
+                <input type="number" name="budget" value={formData.budget} onChange={handleChange} />
+              </div>
+              <div className="form-group">
                 <label>KPI Cible</label>
-                <input type="text" name="kpiCible" value={formData.kpiCible} onChange={handleChange} placeholder="Ex: 1500-2000 installations" />
+                <input type="text" name="kpi_cible" value={formData.kpi_cible} onChange={handleChange} placeholder="Ex: 1500-2000 users" />
+              </div>
+            </div>
+
+            <hr style={{ margin: '20px 0', borderColor: '#ddd' }} />
+            <h4 style={{ marginBottom: '15px' }}>✅ Résultats Réels (Après)</h4>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Budget Réel (FCFA)</label>
+                <input type="number" name="budget_reel" value={formData.budget_reel} onChange={handleChange} />
               </div>
               <div className="form-group">
                 <label>KPI Réel</label>
-                <input type="text" name="kpiReal" value={formData.kpiReal} onChange={handleChange} />
+                <input type="text" name="kpi_reel" value={formData.kpi_reel} onChange={handleChange} placeholder="Ex: 1750 users" />
               </div>
             </div>
 
-            <div className="form-group">
-              <label>ROI Estimé (FCFA)</label>
-              <input type="number" name="roi" value={formData.roi} onChange={handleChange} />
-            </div>
-
             <div className="form-row">
+              <div className="form-group">
+                <label>ROI Estimé (FCFA)</label>
+                <input type="number" name="roi" value={formData.roi} onChange={handleChange} />
+              </div>
               <div className="form-group">
                 <label>État</label>
                 <select name="etat" value={formData.etat} onChange={handleChange}>
                   {ETATS.map(etat => <option key={etat}>{etat}</option>)}
                 </select>
               </div>
-              <div className="form-group">
-                <label>Responsable</label>
-                <input type="text" name="responsable" value={formData.responsable} onChange={handleChange} />
-              </div>
             </div>
 
             <div className="form-group">
-              <label>Commentaires</label>
-              <textarea name="commentaires" value={formData.commentaires} onChange={handleChange} rows="3"></textarea>
+              <label>Responsable</label>
+              <input type="text" name="responsable" value={formData.responsable} onChange={handleChange} placeholder="Nom du responsable" />
             </div>
 
             <div className="form-actions">
