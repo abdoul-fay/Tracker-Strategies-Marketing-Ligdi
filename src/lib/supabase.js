@@ -113,10 +113,10 @@ export const db = {
     if (error) throw error
   },
 
-  // Ambassadors
+  // Ambassadeurs (français)
   async getAmbassadors() {
     const { data, error } = await supabase
-      .from('ambassadors')
+      .from('ambassadeurs')
       .select('*')
       .order('created_at', { ascending: false })
     if (error) throw error
@@ -125,7 +125,7 @@ export const db = {
 
   async addAmbassador(ambassador) {
     const { data, error } = await supabase
-      .from('ambassadors')
+      .from('ambassadeurs')
       .insert([ambassador])
       .select()
     if (error) throw error
@@ -134,7 +134,7 @@ export const db = {
 
   async updateAmbassador(id, ambassador) {
     const { data, error } = await supabase
-      .from('ambassadors')
+      .from('ambassadeurs')
       .update(ambassador)
       .eq('id', id)
       .select()
@@ -143,7 +143,7 @@ export const db = {
   },
 
   async deleteAmbassador(id) {
-    const { error } = await supabase.from('ambassadors').delete().eq('id', id)
+    const { error } = await supabase.from('ambassadeurs').delete().eq('id', id)
     if (error) throw error
   },
 
