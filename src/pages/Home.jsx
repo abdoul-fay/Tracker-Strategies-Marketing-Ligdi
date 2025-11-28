@@ -56,15 +56,15 @@ export default function Home({ campagnes }) {
   useEffect(() => {
     let totalBudget = 0;
     let totalReal = 0;
+    let totalROI = 0;
 
     // Somme depuis toutes les campagnes
     campagnes.forEach(campagne => {
       totalBudget += Number(campagne.budget || 0);
       totalReal += Number(campagne.budget_reel || 0);
+      totalROI += Number(campagne.roi || 0);
     });
 
-    // ROI = (Budget Réel - Budget Prévu) / Budget Prévu * 100
-    const totalROI = totalBudget > 0 ? ((totalReal - totalBudget) / totalBudget * 100) : 0;
     const ecartMoyen = totalBudget > 0 ? ((totalReal / totalBudget - 1) * 100) : 0;
 
     setStats({
@@ -125,7 +125,7 @@ export default function Home({ campagnes }) {
           <div className="stat-icon">📈</div>
           <div className="stat-info">
             <p className="stat-label">ROI Estimé</p>
-            <p className="stat-value">{stats.totalROI.toFixed(2)}%</p>
+            <p className="stat-value">{formatNumber(stats.totalROI)} F</p>
             <p className="stat-subtitle">Retour sur investissement</p>
           </div>
         </div>

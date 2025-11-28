@@ -90,12 +90,7 @@ export default function Dashboard({ campagnes }) {
         </div>
         <div className="kpi-card">
           <h3>ROI Moyen</h3>
-          {(() => {
-            const totalBudget = Object.values(stats.byMonth).reduce((sum, m) => sum + m.budget, 0);
-            const totalReal = Object.values(stats.byMonth).reduce((sum, m) => sum + m.real, 0);
-            const roiMoyen = totalBudget > 0 ? ((totalReal - totalBudget) / totalBudget * 100) : 0;
-            return <p className="value">{roiMoyen.toFixed(2)}%</p>;
-          })()}
+          <p className="value">{(Object.values(stats.byMonth).reduce((sum, m) => sum + m.roi, 0) / (Object.keys(stats.byMonth).length || 1)).toFixed(2)}%</p>
         </div>
       </div>
 
