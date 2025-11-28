@@ -842,54 +842,378 @@
   }
 }
 
-@media (max-width: 768px) {
+/* TABLET & MOBILE RESPONSIVE */
+@media (max-width: 1024px) {
+  .budget-intelligence {
+    padding: 24px 16px;
+  }
+
   .budget-intelligence h1 {
-    font-size: 1.8rem;
-  }
-
-  .health-score-card {
-    padding: 20px;
-    gap: 16px;
-  }
-
-  .score-number {
-    font-size: 2.5rem;
-  }
-
-  .score-details {
-    gap: 8px;
-  }
-
-  .metric {
-    padding: 8px 12px;
-    font-size: 0.9rem;
-  }
-
-  .intelligence-tabs {
-    flex-wrap: wrap;
-  }
-
-  .tab-content {
-    padding: 0;
-  }
-
-  .section {
-    padding: 16px;
+    font-size: 2rem;
   }
 
   .channel-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .forecast-grid {
     grid-template-columns: 1fr;
   }
+}
 
+@media (max-width: 768px) {
+  .budget-intelligence {
+    padding: 16px 12px;
+  }
+
+  .budget-intelligence h1 {
+    font-size: 1.6rem;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+
+  /* Controls */
+  .intelligence-controls {
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .intelligence-controls select {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  /* Health Score */
+  .health-score-card {
+    padding: 16px;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-direction: column;
+  }
+
+  .score-container {
+    flex: 1;
+  }
+
+  .score-number {
+    font-size: 2rem;
+  }
+
+  .score-label {
+    font-size: 0.85rem;
+  }
+
+  .score-details {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .metric {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    flex: 0 1 calc(50% - 3px);
+  }
+
+  /* Tabs */
+  .intelligence-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 4px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+  }
+
+  .intelligence-tabs button {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 90px;
+  }
+
+  /* Tab Content */
+  .tab-content {
+    padding: 12px 0;
+  }
+
+  .section {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .section h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+
+  /* Cards */
+  .channel-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .channel-card {
+    padding: 12px;
+  }
+
+  .channel-card h4 {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+
+  .performance-item {
+    font-size: 0.8rem;
+    margin: 6px 0;
+  }
+
+  .performance-label {
+    display: inline-block;
+    min-width: 80px;
+  }
+
+  /* Forecast */
+  .forecast-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .forecast-card {
+    padding: 12px;
+  }
+
+  .forecast-card h4 {
+    font-size: 0.9rem;
+  }
+
+  .forecast-item {
+    font-size: 0.8rem;
+    margin: 6px 0;
+  }
+
+  /* Chat */
   .message {
-    max-width: 90%;
+    max-width: 85%;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    margin: 6px 0;
   }
 
   .chat-container {
-    height: 500px;
+    height: 400px;
+    max-height: 50vh;
+  }
+
+  .chat-input-group {
+    gap: 6px;
+  }
+
+  .chat-input-group input {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+  }
+
+  .chat-input-group button {
+    padding: 8px 10px;
+    min-width: 40px;
+  }
+
+  /* Charts */
+  .chart-container {
+    height: 250px;
+    margin-bottom: 12px;
+  }
+
+  /* Comparison */
+  .comparison-table {
+    font-size: 0.8rem;
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 6px 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .budget-intelligence {
+    padding: 12px 8px;
+  }
+
+  .budget-intelligence h1 {
+    font-size: 1.3rem;
+    margin-bottom: 2px;
+  }
+
+  .subtitle {
+    font-size: 0.8rem;
+    margin-bottom: 16px;
+  }
+
+  /* Controls */
+  .intelligence-controls {
+    gap: 6px;
+    margin-bottom: 16px;
+    flex-direction: column;
+  }
+
+  .intelligence-controls select {
+    padding: 10px;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  /* Health Score */
+  .health-score-card {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .score-number {
+    font-size: 1.6rem;
+  }
+
+  .score-label {
+    font-size: 0.75rem;
+  }
+
+  .metric {
+    font-size: 0.7rem;
+    padding: 5px 8px;
+    flex: 0 1 calc(50% - 2px);
+  }
+
+  /* Tabs - Horizontal scroll */
+  .intelligence-tabs {
+    gap: 2px;
+    margin-bottom: 12px;
+  }
+
+  .intelligence-tabs button {
+    padding: 8px 10px;
+    font-size: 0.7rem;
+    min-width: 75px;
+  }
+
+  .intelligence-tabs button.active {
+    font-size: 0.75rem;
+  }
+
+  /* Content */
+  .section {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .section h3 {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+
+  /* Cards */
+  .channel-grid {
+    gap: 8px;
+  }
+
+  .channel-card {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .channel-card h4 {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+
+  .performance-item {
+    font-size: 0.75rem;
+    margin: 4px 0;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .performance-label {
+    min-width: 70px;
+  }
+
+  /* Forecast */
+  .forecast-grid {
+    gap: 8px;
+  }
+
+  .forecast-card {
+    padding: 10px;
+  }
+
+  .forecast-card h4 {
+    font-size: 0.85rem;
+  }
+
+  .forecast-item {
+    font-size: 0.75rem;
+    margin: 4px 0;
+  }
+
+  /* Chat */
+  .message {
+    max-width: 90%;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    margin: 4px 0;
+    border-radius: 6px;
+  }
+
+  .message.user {
+    font-size: 0.8rem;
+  }
+
+  .chat-container {
+    height: 300px;
+    max-height: 40vh;
+    border-radius: 8px;
+  }
+
+  .chat-input-group {
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .chat-input-group input {
+    padding: 8px;
+    font-size: 0.9rem;
+    flex: 1;
+    border-radius: 6px;
+  }
+
+  .chat-input-group button {
+    padding: 8px;
+    min-width: 35px;
+    border-radius: 6px;
+  }
+
+  /* Charts */
+  .chart-container {
+    height: 200px;
+    margin-bottom: 10px;
+  }
+
+  /* Table */
+  .comparison-table {
+    font-size: 0.7rem;
+    overflow-x: auto;
+    display: block;
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 4px 2px;
   }
 }
