@@ -51,16 +51,22 @@ export default function App() {
     loadData()
   }, [])
 
-  // Rafraîchir les campagnes toutes les 3 secondes (polling)
+  // Rafraîchir TOUTES les données toutes les 2 secondes (polling)
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const campagnesData = await db.getCampaigns()
+        const [campagnesData, ambassadeursData, strategiesData] = await Promise.all([
+          db.getCampaigns(),
+          db.getAmbassadors(),
+          db.getStrategies()
+        ])
         setCampagnes(campagnesData)
+        setAmbassadeurs(ambassadeursData)
+        setStrategies(strategiesData)
       } catch (err) {
-        console.error('Error refreshing campaigns:', err)
+        console.error('Error refreshing data:', err)
       }
-    }, 3000)
+    }, 2000)
     
     return () => clearInterval(interval)
   }, [])
