@@ -99,9 +99,10 @@ export const db = {
   },
 
   async updateStrategy(id, strategy) {
+    const { id: _, ...dataWithoutId } = strategy
     const { data, error } = await supabase
       .from('strategies')
-      .update(strategy)
+      .update(dataWithoutId)
       .eq('id', id)
       .select()
     if (error) throw error
@@ -133,9 +134,10 @@ export const db = {
   },
 
   async updateAmbassador(id, ambassador) {
+    const { id: _, ...dataWithoutId } = ambassador
     const { data, error } = await supabase
       .from('ambassadeurs')
-      .update(ambassador)
+      .update(dataWithoutId)
       .eq('id', id)
       .select()
     if (error) throw error
