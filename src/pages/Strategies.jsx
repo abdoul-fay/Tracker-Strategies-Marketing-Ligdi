@@ -6,7 +6,7 @@ const MOIS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 
 
 export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
   const [showModal, setShowModal] = useState(false)
-  const [editIndex, setEditIndex] = useState(null)
+  const [editId, setEditId] = useState(null)
   
   const [formData, setFormData] = useState({
     mois: 0,
@@ -20,10 +20,13 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
     versions: []
   })
 
-  const handleOpen = (index = null, month = 0, week = 1) => {
-    if (index !== null) {
-      setFormData(strategies[index])
-      setEditIndex(index)
+  const handleOpen = (id = null, month = 0, week = 1) => {
+    if (id !== null) {
+      const strategy = strategies.find(s => s.id === id);
+      if (strategy) {
+        setFormData(strategy)
+        setEditId(id)
+      }
     } else {
       setFormData({
         mois: month,
@@ -36,7 +39,7 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
         canaux: '',
         versions: []
       })
-      setEditIndex(null)
+      setEditId(null)
     }
     setShowModal(true)
   }
@@ -53,12 +56,15 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
 
     const updatedData = {
       ...formData,
-      versions: editIndex !== null ? formData.versions : [version]
+      versions: editId !== null ? formData.versions : [version]
     }
 
-    if (editIndex !== null) {
+    if (editId !== null) {
       updatedData.versions = [...formData.versions, version]
-      onUpdate(editIndex, updatedData)
+      const index = strategies.findIndex(s => s.id === editId)
+      if (index !== -1) {
+        onUpdate(index, updatedData)
+      }
     } else {
       onAdd(updatedData)
     }
@@ -146,12 +152,15 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
 
                             <div className="strategy-actions">
                               <button className="btn-edit" onClick={() => {
-                                setEditIndex(strat.idx)
-                                handleOpen(strat.idx)
+                                setEditId(strat.id)
+                                handleOpen(strat.id)
                               }}>
                                 ✏️
                               </button>
-                              <button className="btn-delete" onClick={() => onDelete(strat.idx)}>
+                              <button className="btn-delete" onClick={() => {
+                                const index = strategies.findIndex(s => s.id === strat.id);
+                                if (index !== -1) onDelete(index);
+                              }}>
                                 🗑️
                               </button>
                             </div>
@@ -184,7 +193,7 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
         <div className="modal active">
           <div className="modal-content">
             <div className="modal-header">
-              {editIndex !== null ? '✏️ Modifier' : '✨ Nouvelle Stratégie'}
+              {editId !== null ? '✏️ Modifier' : '✨ Nouvelle Stratégie'}
             </div>
 
             <div className="form-row">

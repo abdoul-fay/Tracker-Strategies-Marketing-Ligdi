@@ -3,7 +3,7 @@ import './SuiviAmbassadeurs.css'
 
 export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDelete }) {
   const [showModal, setShowModal] = useState(false)
-  const [editIndex, setEditIndex] = useState(null)
+  const [editId, setEditId] = useState(null)
   const [formData, setFormData] = useState({
     ambassadeur: '',
     canal: 'Étudiant',
@@ -13,10 +13,13 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
     commentaires: ''
   })
 
-  const handleOpen = (index = null) => {
-    if (index !== null) {
-      setFormData(ambassadeurs[index])
-      setEditIndex(index)
+  const handleOpen = (id = null) => {
+    if (id !== null) {
+      const amb = ambassadeurs.find(a => a.id === id);
+      if (amb) {
+        setFormData(amb)
+        setEditId(id)
+      }
     } else {
       setFormData({
         ambassadeur: '',
@@ -26,14 +29,18 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
         recompense_total: 0,
         commentaires: ''
       })
-      setEditIndex(null)
+      setEditId(null)
     }
     setShowModal(true)
   }
 
   const handleSave = () => {
-    if (editIndex !== null) {
-      onUpdate(editIndex, formData)
+    if (editId !== null) {
+      // Trouver l'index pour l'appel onUpdate (qui s'attend à un index)
+      const index = ambassadeurs.findIndex(a => a.id === editId)
+      if (index !== -1) {
+        onUpdate(index, formData)
+      }
     } else {
       onAdd(formData)
     }
@@ -117,8 +124,11 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
                 <td>{(amb.recompense_total || 0).toLocaleString()}</td>
                 <td>{calcCoutAcquisition(amb.recompense_total, amb.utilisateurs_actifs)}</td>
                 <td>
-                  <button className="btn-secondary" onClick={() => handleOpen(idx)}>✏️</button>
-                  <button className="btn-danger" onClick={() => onDelete(idx)}>🗑️</button>
+                  <button className="btn-secondary" onClick={() => handleOpen(amb.id)}>✏️</button>
+                  <button className="btn-danger" onClick={() => {
+                    const index = ambassadeurs.findIndex(a => a.id === amb.id);
+                    if (index !== -1) onDelete(index);
+                  }}>🗑️</button>
                 </td>
               </tr>
             ))}
@@ -130,7 +140,7 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
         <div className="modal active">
           <div className="modal-content">
             <div className="modal-header">
-              {editIndex !== null ? 'Éditer Ambassadeur' : 'Ajouter Ambassadeur'}
+              {editId !== null ? 'Éditer Ambassadeur' : 'Ajouter Ambassadeur'}
             </div>
 
             <div className="form-group">
