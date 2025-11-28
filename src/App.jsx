@@ -91,11 +91,11 @@ export default function App() {
                 onAdd={async (amb) => {
                   try {
                     const newAmb = await db.addAmbassador(amb)
-                    setAmbassadeurs([newAmb, ...ambassadeurs])
+                    // Recharger immédiatement depuis Supabase pour avoir les données fraîches avec l'ID
+                    const updatedAmbs = await db.getAmbassadors()
+                    setAmbassadeurs(updatedAmbs)
                   } catch (err) {
                     console.error('Erreur ajout ambassadeur:', err)
-                    // Fallback: ajouter localement
-                    setAmbassadeurs([amb, ...ambassadeurs])
                   }
                 }}
                 onUpdate={async (index, amb) => {
@@ -103,10 +103,10 @@ export default function App() {
                     const id = ambassadeurs[index]?.id
                     if (id) {
                       await db.updateAmbassador(id, amb)
+                      // Recharger depuis Supabase
+                      const updatedAmbs = await db.getAmbassadors()
+                      setAmbassadeurs(updatedAmbs)
                     }
-                    const newAmb = [...ambassadeurs]
-                    newAmb[index] = amb
-                    setAmbassadeurs(newAmb)
                   } catch (err) {
                     console.error('Erreur mise à jour ambassadeur:', err)
                   }
@@ -116,8 +116,10 @@ export default function App() {
                     const id = ambassadeurs[index]?.id
                     if (id) {
                       await db.deleteAmbassador(id)
+                      // Recharger depuis Supabase
+                      const updatedAmbs = await db.getAmbassadors()
+                      setAmbassadeurs(updatedAmbs)
                     }
-                    setAmbassadeurs(ambassadeurs.filter((_, i) => i !== index))
                   } catch (err) {
                     console.error('Erreur suppression ambassadeur:', err)
                   }
@@ -130,11 +132,11 @@ export default function App() {
                 onAdd={async (str) => {
                   try {
                     const newStr = await db.addStrategy(str)
-                    setStrategies([newStr, ...strategies])
+                    // Recharger immédiatement depuis Supabase
+                    const updatedStrats = await db.getStrategies()
+                    setStrategies(updatedStrats)
                   } catch (err) {
                     console.error('Erreur ajout stratégie:', err)
-                    // Fallback: ajouter localement
-                    setStrategies([str, ...strategies])
                   }
                 }}
                 onUpdate={async (index, str) => {
@@ -142,10 +144,10 @@ export default function App() {
                     const id = strategies[index]?.id
                     if (id) {
                       await db.updateStrategy(id, str)
+                      // Recharger depuis Supabase
+                      const updatedStrats = await db.getStrategies()
+                      setStrategies(updatedStrats)
                     }
-                    const newStr = [...strategies]
-                    newStr[index] = str
-                    setStrategies(newStr)
                   } catch (err) {
                     console.error('Erreur mise à jour stratégie:', err)
                   }
@@ -155,8 +157,10 @@ export default function App() {
                     const id = strategies[index]?.id
                     if (id) {
                       await db.deleteStrategy(id)
+                      // Recharger depuis Supabase
+                      const updatedStrats = await db.getStrategies()
+                      setStrategies(updatedStrats)
                     }
-                    setStrategies(strategies.filter((_, i) => i !== index))
                   } catch (err) {
                     console.error('Erreur suppression stratégie:', err)
                   }

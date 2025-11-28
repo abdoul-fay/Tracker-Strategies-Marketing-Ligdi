@@ -76,11 +76,11 @@ function KPIFinanciers() {
     loadKPIs();
   }, []);
 
-  // Polling: recharger les KPI toutes les 2 secondes pour synchro en temps réel
+  // Polling: recharger les KPI toutes les 5 secondes pour synchro en temps réel
   useEffect(() => {
     const interval = setInterval(() => {
       loadKPIs();
-    }, 2000);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 

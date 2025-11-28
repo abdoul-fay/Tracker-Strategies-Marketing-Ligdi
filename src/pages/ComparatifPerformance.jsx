@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { supabase } from '../lib/supabase';
 import './ComparatifPerformance.css';
 
 const PERIODS = [
@@ -8,15 +9,38 @@ const PERIODS = [
   { value: 'year', label: 'Annuel' }
 ];
 
-function getKPIData() {
-  const saved = localStorage.getItem('kpiFinanciers');
-  return saved ? JSON.parse(saved) : [];
-}
-
 export default function ComparatifPerformance() {
-  const kpiList = useMemo(() => getKPIData(), []);
+  const [kpiList, setKpiList] = useState([]);
   const [selectedKPI, setSelectedKPI] = useState(0);
   const [period, setPeriod] = useState('week');
+
+  // Charger les KPI depuis Supabase
+  useEffect(() => {
+    const loadKPIs = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('kpi_financiers')
+          .select('*')
+          .order('mois', { ascending: false });
+        
+        if (error) {
+          console.error('Erreur chargement KPI:', error);
+          // Fallback sur localStorage
+          const saved = localStorage.getItem('kpiFinanciers');
+          setKpiList(saved ? JSON.parse(saved) : []);
+        } else {
+          setKpiList(data || []);
+        }
+      } catch (err) {
+        console.error('Erreur:', err);
+      }
+    };
+    loadKPIs();
+
+    // Polling toutes les 5 secondes
+    const interval = setInterval(loadKPIs, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (kpiList.length === 0) {
     return (
