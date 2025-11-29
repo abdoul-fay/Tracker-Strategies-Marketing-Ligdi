@@ -1,5 +1,6 @@
 import { CONFIG } from '../config'
 import { calculateMomentum, detectAnomalies } from '../lib/predictions'
+import { useState } from 'react'
 
 /**
  * Système d'alertes avancées pour les seuils marketing
@@ -184,17 +185,35 @@ export function AlertBadge({ alert, compact = false }) {
  * Container pour afficher toutes les alertes
  */
 export function AlertContainer({ alerts, maxDisplay = 5 }) {
-  if (!alerts || alerts.length === 0) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const alertCount = alerts?.length || 0
+  const hasAlerts = alertCount > 0
+  
+  // Déterminer la couleur du bouton basée sur la sévérité des alertes
+  const maxSeverity = alerts?.reduce((max, alert) => {
+    const severityMap = { danger: 3, high: 3, warning: 2, medium: 2, info: 1, low: 1 }
+    return Math.max(max, severityMap[alert.severity] || 0)
+  }, 0)
+  
+  const buttonColor = maxSeverity === 3 ? '#ef4444' : maxSeverity === 2 ? '#f59e0b' : '#10b981'
+  const buttonBgColor = maxSeverity === 3 ? 'rgba(239, 68, 68, 0.1)' : maxSeverity === 2 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)'
+
+  if (!hasAlerts) {
     return (
       <div
         style={{
-          padding: '16px',
+          padding: '12px 16px',
           background: 'rgba(16, 185, 129, 0.1)',
           border: '1px solid #10b981',
           borderRadius: '8px',
           color: '#059669',
           textAlign: 'center',
-          fontWeight: '600'
+          fontWeight: '600',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px'
         }}
       >
         ✅ Tout est bon ! Aucune alerte.
@@ -202,32 +221,82 @@ export function AlertContainer({ alerts, maxDisplay = 5 }) {
     )
   }
 
-  const displayedAlerts = alerts.slice(0, maxDisplay)
-  const hiddenCount = alerts.length - displayedAlerts.length
+  const displayedAlerts = isOpen ? alerts : alerts.slice(0, maxDisplay)
+  const hiddenCount = !isOpen ? (alerts.length - maxDisplay) : 0
 
   return (
     <div style={{ marginBottom: '20px' }}>
-      <h3 style={{ margin: '0 0 12px 0', color: '#1a1a2e', fontSize: '16px' }}>
-        🔔 Alertes ({alerts.length})
-      </h3>
-      <div>
-        {displayedAlerts.map(alert => (
-          <AlertBadge key={alert.id} alert={alert} />
-        ))}
-        {hiddenCount > 0 && (
-          <div
-            style={{
-              padding: '8px 12px',
-              fontSize: '13px',
-              color: '#666',
-              textAlign: 'center',
-              fontStyle: 'italic'
-            }}
-          >
-            +{hiddenCount} autres alertes non affichées
-          </div>
-        )}
-      </div>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          width: '100%',
+          padding: '12px 16px',
+          background: buttonBgColor,
+          border: `2px solid ${buttonColor}`,
+          borderRadius: '8px',
+          color: buttonColor,
+          fontSize: '15px',
+          fontWeight: '600',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          transition: 'all 0.3s ease',
+          marginBottom: isOpen ? '12px' : '0'
+        }}
+        onMouseOver={e => e.target.style.background = buttonColor + '20'}
+        onMouseOut={e => e.target.style.background = buttonBgColor}
+      >
+        <span>
+          🔔 Alertes ({alertCount})
+        </span>
+        <span style={{ fontSize: '18px', transition: 'transform 0.3s' }}>
+          {isOpen ? '▼' : '▶'}
+        </span>
+      </button>
+
+      {isOpen && (
+        <div
+          style={{
+            background: 'white',
+            border: `1px solid ${buttonColor}`,
+            borderTop: 'none',
+            borderRadius: '0 0 8px 8px',
+            padding: '12px',
+            animation: 'slideDown 0.3s ease'
+          }}
+        >
+          {displayedAlerts.map(alert => (
+            <AlertBadge key={alert.id} alert={alert} />
+          ))}
+          {hiddenCount > 0 && (
+            <div
+              style={{
+                padding: '8px 12px',
+                fontSize: '13px',
+                color: '#666',
+                textAlign: 'center',
+                fontStyle: 'italic'
+              }}
+            >
+              +{hiddenCount} autres alertes
+            </div>
+          )}
+        </div>
+      )}
+      
+      <style>{`
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   )
 }
