@@ -633,23 +633,19 @@ ${i + 1}. 🎯 ${strat.name}
       type: 'prediction',
       timeframe: horizon === '6' ? '6 mois' : '3 mois',
       data: forecast,
-      interpretation: `
-🔮 PRÉDICTIONS SUR ${horizon === '6' ? '6 MOIS' : '3 MOIS'}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      interpretation: `🔮 PRÉDICTIONS SUR ${horizon === '6' ? '6 MOIS' : '3 MOIS'}
 
 ${Object.entries(forecast)
   .map(
     ([canal, data]) => `
-${canal.toUpperCase()}:
-• ROI Prédit: ${Math.round(data.expectedROI)}%
-• Reach: ${data.expectedReach.toLocaleString()}
-• Confiance: ${Math.round(data.confidence * 100)}%
-    `
+📍 ${canal.toUpperCase()}
+   • ROI Prédit: ${Math.round(data.expectedROI)}%
+   • Reach: ${(data.expectedReach / 1000).toFixed(1)}k
+   • Confiance: ${Math.round(data.confidence * 100)}%
+`
   )
   .join('')}
-
-⚡ Ces prédictions se basent sur les tendances historiques et le momentum actuel.
-      `,
+⚡ Ces prédictions se basent sur les tendances historiques et le momentum actuel.`,
       followUp: `Vous trouvez ces projections réalistes? Avez-vous des facteurs externes à considérer?`,
     }
   }

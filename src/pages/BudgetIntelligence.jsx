@@ -580,8 +580,13 @@ export default function BudgetIntelligence({ campagnes = [] }) {
                   </div>
                   <div className="message ai-message">
                     <div className="message-type-badge">{msg.ai.type || 'response'}</div>
-                    <p>{msg.ai.message || msg.ai.interpretation}</p>
-                    {msg.ai.followUp && <p className="follow-up">👉 {msg.ai.followUp}</p>}
+                    <div
+                      className="preserve-whitespace"
+                      dangerouslySetInnerHTML={{ __html: require('../lib/safeHtml').sanitizeAndFormat(msg.ai.message || msg.ai.interpretation) }}
+                    />
+                    {msg.ai.followUp && (
+                      <div className="follow-up preserve-whitespace" dangerouslySetInnerHTML={{ __html: require('../lib/safeHtml').sanitizeAndFormat('👉 ' + msg.ai.followUp) }} />
+                    )}
                   </div>
                 </div>
               ))}

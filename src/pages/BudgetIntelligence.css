@@ -700,6 +700,11 @@
   line-height: 1.5;
 }
 
+/* Preserve newlines in AI messages so '\n' appear as line breaks */
+.ai-message p {
+  white-space: pre-wrap;
+}
+
 .message p:last-child {
   margin-bottom: 0;
 }

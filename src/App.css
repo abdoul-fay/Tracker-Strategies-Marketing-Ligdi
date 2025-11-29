@@ -249,3 +249,9 @@ html[style*="--bg-primary: #0f172a"] .app {
   height: 300px;
   margin-bottom: 30px;
 }
+
+/* Utility: preserve whitespace and line breaks for AI-generated text */
+.preserve-whitespace {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
