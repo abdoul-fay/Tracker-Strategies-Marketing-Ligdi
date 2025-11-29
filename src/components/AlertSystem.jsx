@@ -1,8 +1,9 @@
 import { CONFIG } from '../config'
+import { calculateMomentum, detectAnomalies } from '../lib/predictions'
 
 /**
- * Système d'alertes pour les seuils marketing
- * Retourne les alertes basées sur les données de campagnes
+ * Système d'alertes avancées pour les seuils marketing
+ * Retourne les alertes basées sur les données de campagnes + ML
  */
 export function generateAlerts(campagnes = []) {
   const alerts = []
@@ -63,6 +64,63 @@ export function generateAlerts(campagnes = []) {
       }
     }
   })
+
+  // 5. Alertes avancées : Croissance / Décroissance
+  if (campagnes.length >= 3) {
+    const recentCamps = campagnes.slice(0, 3)
+    const recentBudget = recentCamps.reduce((sum, c) => sum + (c.budget || 0), 0) / recentCamps.length
+    const olderCamps = campagnes.slice(3, 6)
+    const olderBudget = olderCamps.length > 0 
+      ? olderCamps.reduce((sum, c) => sum + (c.budget || 0), 0) / olderCamps.length
+      : recentBudget
+
+    const growthRate = (recentBudget - olderBudget) / olderBudget * 100
+    if (growthRate > 20) {
+      alerts.push({
+        id: 'growth_spike',
+        type: 'info',
+        title: '📈 Croissance de budget',
+        message: `Augmentation détectée: +${growthRate.toFixed(1)}%`,
+        severity: 'low'
+      })
+    } else if (growthRate < -20 && olderCamps.length > 0) {
+      alerts.push({
+        id: 'growth_decline',
+        type: 'warning',
+        title: '📉 Réduction de budget',
+        message: `Diminution détectée: ${growthRate.toFixed(1)}%`,
+        severity: 'medium'
+      })
+    }
+  }
+
+  // 6. Alertes d'anomalies (ROI extrêmement hauts/bas)
+  const roiValues = campagnes.map(c => c.roi || 0).filter(r => r !== 0)
+  if (roiValues.length >= 3) {
+    const anomalies = detectAnomalies(roiValues)
+    anomalies.forEach((anom, i) => {
+      if (i < 2) { // Afficher max 2 anomalies
+        const camp = campagnes[anom.index]
+        if (camp && anom.value > 20) {
+          alerts.push({
+            id: `roi_anomaly_${camp.id}`,
+            type: 'success',
+            title: '🚀 ROI exceptionnel',
+            message: `Campagne "${camp.name}": ROI ${anom.value.toFixed(2)}%`,
+            severity: 'low'
+          })
+        } else if (camp && anom.value < -10) {
+          alerts.push({
+            id: `roi_anomaly_neg_${camp.id}`,
+            type: 'danger',
+            title: '⚠️ ROI très faible',
+            message: `Campagne "${camp.name}": ROI ${anom.value.toFixed(2)}%`,
+            severity: 'high'
+          })
+        }
+      }
+    })
+  }
 
   return alerts.sort((a, b) => {
     const severityOrder = { high: 0, medium: 1, low: 2 }

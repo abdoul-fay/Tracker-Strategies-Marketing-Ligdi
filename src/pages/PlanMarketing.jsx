@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './PlanMarketing.css'
+import { AdvancedFilters } from '../components/FilterPanel'
 import { db } from '../lib/supabase'
 
 // Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
@@ -16,6 +17,7 @@ const ETATS = ['À venir', 'En cours', 'Terminé']
 
 export default function PlanMarketing() {
   const [campagnes, setCampagnes] = useState([])
+  const [filteredCampagnes, setFilteredCampagnes] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showModal, setShowModal] = useState(false)
@@ -42,6 +44,7 @@ export default function PlanMarketing() {
         setLoading(true)
         const data = await db.getCampaigns()
         setCampagnes(data)
+        setFilteredCampagnes(data) // Initialize filtered list
         setError(null)
       } catch (err) {
         setError(err.message)
@@ -158,14 +161,17 @@ export default function PlanMarketing() {
         </button>
       </div>
 
+      {/* Filtres avancés */}
+      <AdvancedFilters campagnes={campagnes} onFilter={setFilteredCampagnes} />
+
       <div className="totals-row">
         <div className="total-item">
           <span>Budget Prévu Total:</span>
-          <strong>{formatNumber(totalBudget)} FCFA</strong>
+          <strong>{formatNumber(filteredCampagnes.reduce((sum, c) => sum + (c.budget || 0), 0))} FCFA</strong>
         </div>
         <div className="total-item">
           <span>Budget Réel Total:</span>
-          <strong>{formatNumber(totalBudgetReel)} FCFA</strong>
+          <strong>{formatNumber(filteredCampagnes.reduce((sum, c) => sum + (c.budget_reel || 0), 0))} FCFA</strong>
         </div>
         <div className="total-item">
           <span>ROI Total:</span>
@@ -193,14 +199,14 @@ export default function PlanMarketing() {
             </tr>
           </thead>
           <tbody>
-            {!loading && campagnes.length === 0 && (
+            {!loading && filteredCampagnes.length === 0 && (
               <tr>
                 <td colSpan="13" style={{ textAlign: 'center', color: '#999' }}>
-                  Aucune campagne. Ajoutez-en une pour commencer.
+                  {campagnes.length === 0 ? 'Aucune campagne. Ajoutez-en une pour commencer.' : 'Aucune campagne ne correspond aux filtres.'}
                 </td>
               </tr>
             )}
-            {campagnes.map((campagne) => (
+            {filteredCampagnes.map((campagne) => (
               <tr key={campagne.id}>
                 <td>{campagne.name}</td>
                 <td>{campagne.action}</td>
