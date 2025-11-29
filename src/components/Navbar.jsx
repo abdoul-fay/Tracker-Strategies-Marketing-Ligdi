@@ -73,6 +73,14 @@ export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDark
         </li>
         <li>
           <button 
+            className={`nav-link ${currentPage === 'advanced' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('advanced')}
+          >
+            🔮 Analyse Avancée
+          </button>
+        </li>
+        <li>
+          <button 
             className={`nav-link ${currentPage === 'intelligence' ? 'active' : ''}`}
             onClick={() => setCurrentPage('intelligence')}
           >
