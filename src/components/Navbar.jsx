@@ -1,6 +1,6 @@
 import './Navbar.css'
 
-export default function Navbar({ currentPage, setCurrentPage }) {
+export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDarkMode }) {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
@@ -77,6 +77,15 @@ export default function Navbar({ currentPage, setCurrentPage }) {
             onClick={() => setCurrentPage('intelligence')}
           >
             🤖 Budget Intelligence IA
+          </button>
+        </li>
+        <li style={{ marginLeft: 'auto' }}>
+          <button 
+            className="nav-link dark-mode-toggle"
+            onClick={toggleDarkMode}
+            title={isDark ? 'Mode clair' : 'Mode sombre'}
+          >
+            {isDark ? '☀️' : '🌙'}
           </button>
         </li>
       </ul>

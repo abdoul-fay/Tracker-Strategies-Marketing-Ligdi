@@ -179,3 +179,14 @@
     background: rgba(255, 255, 255, 0.4);
   }
 }
+
+/* Dark Mode Toggle */
+.dark-mode-toggle {
+  font-size: 18px;
+  padding: 8px 12px;
+  transition: transform 0.3s ease;
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.2) rotate(20deg);
+}

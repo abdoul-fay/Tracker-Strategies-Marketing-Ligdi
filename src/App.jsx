@@ -10,6 +10,7 @@ import KPIFinanciers from './pages/KPIFinanciers'
 import ComparatifPerformance from './pages/ComparatifPerformance'
 import BudgetIntelligence from './pages/BudgetIntelligence'
 import { db } from './lib/supabase'
+import { useDarkMode } from './hooks/useDarkMode'
 import './App.css'
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
   const [ambassadeurs, setAmbassadeurs] = useState([])
   const [strategies, setStrategies] = useState([])
   const [loading, setLoading] = useState(true)
+  const { isDark, toggleDarkMode } = useDarkMode()
 
   // Charger les données de Supabase au démarrage
   useEffect(() => {
@@ -73,7 +75,12 @@ export default function App() {
 
   return (
     <div className="app">
-      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+      <Navbar 
+        currentPage={currentPage} 
+        setCurrentPage={setCurrentPage}
+        isDark={isDark}
+        toggleDarkMode={toggleDarkMode}
+      />
       <div className="container">
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>

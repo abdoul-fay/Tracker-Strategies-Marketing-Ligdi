@@ -15,6 +15,16 @@ export const CONFIG = {
     dark: '#1a1a2e',
   },
 
+  // Thème Dark Mode
+  DARK_COLORS: {
+    background: '#0f172a',
+    surface: '#1a2332',
+    surfaceLight: '#2d3e52',
+    text: '#f1f5f9',
+    textSecondary: '#cbd5e1',
+    border: '#334155',
+  },
+
   // Canaux marketing
   CANAUX: [
     'Réseaux Sociaux',
