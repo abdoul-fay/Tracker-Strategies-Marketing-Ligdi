@@ -153,9 +153,10 @@ export function AlertBadge({ alert, compact = false }) {
           background: style.bg,
           border: `1px solid ${style.border}`,
           borderRadius: '12px',
-          fontSize: '12px',
+          fontSize: 'clamp(10px, 1.5vw, 12px)',
           color: style.text,
-          fontWeight: '600'
+          fontWeight: '600',
+          whiteSpace: 'nowrap'
         }}
         title={alert.message}
       >
@@ -167,16 +168,18 @@ export function AlertBadge({ alert, compact = false }) {
   return (
     <div
       style={{
-        padding: '12px 16px',
+        padding: 'clamp(10px, 2vw, 12px) clamp(12px, 3vw, 16px)',
         background: style.bg,
         border: `1px solid ${style.border}`,
         borderRadius: '8px',
         marginBottom: '10px',
-        color: style.text
+        color: style.text,
+        wordBreak: 'break-word',
+        overflowWrap: 'break-word'
       }}
     >
-      <div style={{ fontWeight: '600', marginBottom: '4px' }}>{alert.title}</div>
-      <div style={{ fontSize: '14px', opacity: 0.9 }}>{alert.message}</div>
+      <div style={{ fontWeight: '600', marginBottom: '4px', fontSize: 'clamp(12px, 2.5vw, 14px)' }}>{alert.title}</div>
+      <div style={{ fontSize: 'clamp(11px, 2vw, 14px)', opacity: 0.9 }}>{alert.message}</div>
     </div>
   )
 }
@@ -203,7 +206,7 @@ export function AlertContainer({ alerts, maxDisplay = 5 }) {
     return (
       <div
         style={{
-          padding: '12px 16px',
+          padding: '10px 12px',
           background: 'rgba(16, 185, 129, 0.1)',
           border: '1px solid #10b981',
           borderRadius: '8px',
@@ -213,7 +216,9 @@ export function AlertContainer({ alerts, maxDisplay = 5 }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '8px'
+          gap: '8px',
+          fontSize: 'clamp(12px, 2vw, 15px)',
+          minHeight: '40px'
         }}
       >
         ✅ Tout est bon ! Aucune alerte.
@@ -230,27 +235,30 @@ export function AlertContainer({ alerts, maxDisplay = 5 }) {
         onClick={() => setIsOpen(!isOpen)}
         style={{
           width: '100%',
-          padding: '12px 16px',
+          padding: 'clamp(10px, 2.5vw, 12px) clamp(12px, 3vw, 16px)',
           background: buttonBgColor,
           border: `2px solid ${buttonColor}`,
           borderRadius: '8px',
           color: buttonColor,
-          fontSize: '15px',
+          fontSize: 'clamp(13px, 2.5vw, 15px)',
           fontWeight: '600',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           transition: 'all 0.3s ease',
-          marginBottom: isOpen ? '12px' : '0'
+          marginBottom: isOpen ? '12px' : '0',
+          minHeight: '44px',
+          gap: '8px',
+          flexWrap: 'nowrap'
         }}
         onMouseOver={e => e.target.style.background = buttonColor + '20'}
         onMouseOut={e => e.target.style.background = buttonBgColor}
       >
-        <span>
+        <span style={{ flex: 1, textAlign: 'left' }}>
           🔔 Alertes ({alertCount})
         </span>
-        <span style={{ fontSize: '18px', transition: 'transform 0.3s' }}>
+        <span style={{ fontSize: 'clamp(14px, 3vw, 18px)', transition: 'transform 0.3s', flexShrink: 0 }}>
           {isOpen ? '▼' : '▶'}
         </span>
       </button>
@@ -262,8 +270,11 @@ export function AlertContainer({ alerts, maxDisplay = 5 }) {
             border: `1px solid ${buttonColor}`,
             borderTop: 'none',
             borderRadius: '0 0 8px 8px',
-            padding: '12px',
-            animation: 'slideDown 0.3s ease'
+            padding: 'clamp(8px, 2vw, 12px)',
+            animation: 'slideDown 0.3s ease',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
           }}
         >
           {displayedAlerts.map(alert => (
@@ -273,7 +284,7 @@ export function AlertContainer({ alerts, maxDisplay = 5 }) {
             <div
               style={{
                 padding: '8px 12px',
-                fontSize: '13px',
+                fontSize: 'clamp(11px, 2vw, 13px)',
                 color: '#666',
                 textAlign: 'center',
                 fontStyle: 'italic'
@@ -294,6 +305,17 @@ export function AlertContainer({ alerts, maxDisplay = 5 }) {
           to {
             opacity: 1;
             transform: translateY(0);
+          }
+        }
+
+        @media (max-width: 640px) {
+          button {
+            min-height: 48px;
+          }
+          
+          div[style*="animation: slideDown"] {
+            max-height: 50vh;
+            padding: 10px;
           }
         }
       `}</style>
