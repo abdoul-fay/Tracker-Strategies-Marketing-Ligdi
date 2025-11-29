@@ -5,6 +5,7 @@ import {
 } from 'recharts'
 import DashboardKPI from './DashboardKPI'
 import { generateAlerts, AlertContainer } from '../components/AlertSystem'
+import { exportCampagnesPDF } from '../lib/pdfExport'
 import './Dashboard.css'
 
 // Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
@@ -68,7 +69,27 @@ export default function Dashboard({ campagnes }) {
 
   return (
     <div className="dashboard">
-      <h1>📊 Dashboard Marketing</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <h1 style={{ margin: 0 }}>📊 Dashboard Marketing</h1>
+        <button
+          onClick={() => exportCampagnesPDF(campagnes)}
+          style={{
+            background: '#6366f1',
+            color: 'white',
+            border: 'none',
+            padding: '8px 16px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '13px',
+            fontWeight: '600',
+            transition: 'all 0.3s'
+          }}
+          onMouseOver={e => e.target.style.background = '#4f46e5'}
+          onMouseOut={e => e.target.style.background = '#6366f1'}
+        >
+          📥 Export PDF
+        </button>
+      </div>
 
       {/* Section Alertes */}
       <div style={{ marginBottom: 20, background: '#f8fafc', padding: 16, borderRadius: 8 }}>

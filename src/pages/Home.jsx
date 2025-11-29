@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { supabase } from '../lib/supabase';
 import { generateAlerts, AlertContainer } from '../components/AlertSystem';
+import { exportCampagnesPDF, exportKPIPDF } from '../lib/pdfExport';
 import './Home.css';
 
 // Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
@@ -114,7 +115,48 @@ export default function Home({ campagnes }) {
       </div>
 
       {/* Section Alertes */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px', paddingBottom: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+          <h2 style={{ margin: 0 }}>📌 Vue d'ensemble</h2>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => exportCampagnesPDF(campagnes)}
+              style={{
+                background: '#6366f1',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: '600',
+                transition: 'all 0.3s'
+              }}
+              onMouseOver={e => e.target.style.background = '#4f46e5'}
+              onMouseOut={e => e.target.style.background = '#6366f1'}
+            >
+              📥 Export Campagnes PDF
+            </button>
+            <button
+              onClick={() => exportKPIPDF(kpiList)}
+              style={{
+                background: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: '600',
+                transition: 'all 0.3s'
+              }}
+              onMouseOver={e => e.target.style.background = '#2563eb'}
+              onMouseOut={e => e.target.style.background = '#3b82f6'}
+            >
+              📥 Export KPI PDF
+            </button>
+          </div>
+        </div>
         <AlertContainer alerts={alerts} maxDisplay={5} />
       </div>
 
