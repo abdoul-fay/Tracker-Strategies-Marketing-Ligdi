@@ -1,4 +1,5 @@
 import './Navbar.css'
+import NotificationBell from './NotificationBell'
 
 export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDarkMode }) {
   return (
@@ -88,6 +89,9 @@ export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDark
           </button>
         </li>
         <li style={{ marginLeft: 'auto' }}>
+          <NotificationBell />
+        </li>
+        <li>
           <button 
             className="nav-link dark-mode-toggle"
             onClick={toggleDarkMode}

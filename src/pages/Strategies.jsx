@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import './Strategies.css'
+import { useNotification } from '../contexts/NotificationContext'
 
 const SEMAINES = ['Semaine 1', 'Semaine 2', 'Semaine 3', 'Semaine 4', 'Semaine 5']
 const MOIS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
 
 export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
+  const { success, error: showError } = useNotification()
   const [showModal, setShowModal] = useState(false)
   const [editId, setEditId] = useState(null)
   
@@ -64,9 +66,11 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
       const index = strategies.findIndex(s => s.id === editId)
       if (index !== -1) {
         onUpdate(index, updatedData)
+        success('Stratégie mise à jour avec succès')
       }
     } else {
       onAdd(updatedData)
+      success('Stratégie ajoutée avec succès')
     }
     setShowModal(false)
   }
@@ -159,7 +163,10 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
                               </button>
                               <button className="btn-delete" onClick={() => {
                                 const index = strategies.findIndex(s => s.id === strat.id);
-                                if (index !== -1) onDelete(index);
+                                if (index !== -1) {
+                                  onDelete(index);
+                                  success('Stratégie supprimée avec succès');
+                                }
                               }}>
                                 🗑️
                               </button>

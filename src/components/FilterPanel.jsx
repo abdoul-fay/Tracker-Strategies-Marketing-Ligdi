@@ -174,8 +174,8 @@ export function AdvancedFilters({ campagnes = [], onFilter = () => {} }) {
               className="filter-select"
             >
               <option value="all">Tous</option>
-              <option value="high_budget">Budget élevé (> 50k)</option>
-              <option value="low_roi">ROI faible (< 2%)</option>
+              <option value="high_budget">Budget élevé (&gt; 50k)</option>
+              <option value="low_roi">ROI faible (&lt; 2%)</option>
               <option value="anomaly">Anomalies détectées</option>
             </select>
           </div>

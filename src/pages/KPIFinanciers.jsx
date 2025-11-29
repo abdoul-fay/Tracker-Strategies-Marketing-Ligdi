@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, db } from '../lib/supabase';
 import './KPIFinanciers.css';
+import { useNotification } from '../contexts/NotificationContext';
 
 // Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
 const formatNumber = (num) => {
@@ -51,6 +52,7 @@ function calcKPI(base) {
 }
 
 function KPIFinanciers() {
+  const { success, error: showError } = useNotification()
   const [kpiList, setKpiList] = useState([]);
   const [form, setForm] = useState(initialKPI);
   const [loading, setLoading] = useState(true);
@@ -146,10 +148,10 @@ function KPIFinanciers() {
 
         if (error) {
           console.error('Erreur mise à jour:', error);
-          alert('Erreur lors de la mise à jour: ' + error.message);
+          showError('Erreur: ' + error.message);
         } else {
           console.log('KPI mis à jour:', data);
-          alert('KPI modifié avec succès!');
+          success('KPI modifié avec succès');
           setEditingId(null);
           setShowEditModal(false);
           setForm(initialKPI);
@@ -164,12 +166,12 @@ function KPIFinanciers() {
 
         if (error) {
           console.error('Erreur sauvegarde:', error);
-          alert('Erreur lors de la sauvegarde: ' + error.message);
+          showError('Erreur: ' + error.message);
         } else {
           console.log('KPI sauvegardé avec succès:', data);
           setKpiList([data[0], ...kpiList]);
           setForm(initialKPI);
-          alert('KPI enregistré avec succès!');
+          success('KPI enregistré avec succès');
           // Recharger depuis Supabase pour sync
           loadKPIs();
         }
@@ -205,15 +207,15 @@ function KPIFinanciers() {
 
       if (error) {
         console.error('Erreur suppression:', error);
-        alert('Erreur lors de la suppression: ' + error.message);
+        showError('Erreur: ' + error.message);
       } else {
         console.log('KPI supprimé');
-        alert('KPI supprimé avec succès!');
+        success('KPI supprimé avec succès');
         loadKPIs();
       }
     } catch (err) {
       console.error('Erreur:', err);
-      alert('Erreur: ' + err.message);
+      showError('Erreur: ' + err.message);
     }
   };
 

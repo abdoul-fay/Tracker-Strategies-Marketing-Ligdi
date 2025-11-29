@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import './PlanMarketing.css'
 import { AdvancedFilters } from '../components/FilterPanel'
 import { db } from '../lib/supabase'
+import { useNotification } from '../contexts/NotificationContext'
 
 // Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
 const formatNumber = (num) => {
@@ -16,6 +17,7 @@ const CANAUX = ['Terrain', 'Radio', 'Digital', 'Influence', 'Parrainage', 'Autre
 const ETATS = ['À venir', 'En cours', 'Terminé']
 
 export default function PlanMarketing() {
+  const { success, error: showError } = useNotification()
   const [campagnes, setCampagnes] = useState([])
   const [filteredCampagnes, setFilteredCampagnes] = useState([])
   const [loading, setLoading] = useState(true)
@@ -88,13 +90,16 @@ export default function PlanMarketing() {
       if (editingId) {
         await db.updateCampaign(editingId, formData)
         setCampagnes(campagnes.map(c => c.id === editingId ? { ...c, ...formData } : c))
+        success('Campagne mise à jour avec succès')
       } else {
         const newCampaign = await db.addCampaign(formData)
         setCampagnes([newCampaign, ...campagnes])
+        success('Campagne ajoutée avec succès')
       }
       setShowModal(false)
       setError(null)
     } catch (err) {
+      showError('Erreur: ' + err.message)
       setError(err.message)
       console.error('Error saving campaign:', err)
     }
@@ -105,8 +110,10 @@ export default function PlanMarketing() {
       try {
         await db.deleteCampaign(id)
         setCampagnes(campagnes.filter(c => c.id !== id))
+        success('Campagne supprimée avec succès')
         setError(null)
       } catch (err) {
+        showError('Erreur: ' + err.message)
         setError(err.message)
         console.error('Error deleting campaign:', err)
       }

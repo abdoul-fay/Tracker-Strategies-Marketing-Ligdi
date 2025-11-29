@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
+import ToastContainer from './components/Toast'
+import { NotificationProvider } from './contexts/NotificationContext'
 import Home from './pages/Home'
 import PlanMarketing from './pages/PlanMarketing'
 import Dashboard from './pages/Dashboard'
@@ -75,14 +77,16 @@ export default function App() {
   }, [])
 
   return (
-    <div className="app">
-      <Navbar 
-        currentPage={currentPage} 
-        setCurrentPage={setCurrentPage}
-        isDark={isDark}
-        toggleDarkMode={toggleDarkMode}
-      />
-      <div className="container">
+    <NotificationProvider>
+      <div className="app">
+        <Navbar 
+          currentPage={currentPage} 
+          setCurrentPage={setCurrentPage}
+          isDark={isDark}
+          toggleDarkMode={toggleDarkMode}
+        />
+        <ToastContainer />
+        <div className="container">
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
             Chargement des données...
@@ -207,5 +211,6 @@ export default function App() {
         )}
       </div>
     </div>
+    </NotificationProvider>
   )
 }

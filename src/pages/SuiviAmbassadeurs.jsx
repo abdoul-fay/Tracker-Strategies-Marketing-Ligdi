@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import './SuiviAmbassadeurs.css'
+import { useNotification } from '../contexts/NotificationContext'
 
 export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDelete }) {
+  const { success, error: showError } = useNotification()
   const [showModal, setShowModal] = useState(false)
   const [editId, setEditId] = useState(null)
   const [formData, setFormData] = useState({
@@ -36,13 +38,14 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
 
   const handleSave = () => {
     if (editId !== null) {
-      // Trouver l'index pour l'appel onUpdate (qui s'attend à un index)
       const index = ambassadeurs.findIndex(a => a.id === editId)
       if (index !== -1) {
         onUpdate(index, formData)
+        success('Ambassadeur mis à jour avec succès')
       }
     } else {
       onAdd(formData)
+      success('Ambassadeur ajouté avec succès')
     }
     setShowModal(false)
   }
@@ -127,7 +130,10 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
                   <button className="btn-secondary" onClick={() => handleOpen(amb.id)}>✏️</button>
                   <button className="btn-danger" onClick={() => {
                     const index = ambassadeurs.findIndex(a => a.id === amb.id);
-                    if (index !== -1) onDelete(index);
+                    if (index !== -1) {
+                      onDelete(index);
+                      success('Ambassadeur supprimé avec succès');
+                    }
                   }}>🗑️</button>
                 </td>
               </tr>
