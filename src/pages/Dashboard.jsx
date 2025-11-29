@@ -4,6 +4,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts'
 import DashboardKPI from './DashboardKPI'
+import { generateAlerts, AlertContainer } from '../components/AlertSystem'
 import './Dashboard.css'
 
 // Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
@@ -62,11 +63,17 @@ export default function Dashboard({ campagnes }) {
     real: data.real
   }))
 
+  const alerts = generateAlerts(campagnes)
   const COLORS = ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
 
   return (
     <div className="dashboard">
       <h1>📊 Dashboard Marketing</h1>
+
+      {/* Section Alertes */}
+      <div style={{ marginBottom: 20, background: '#f8fafc', padding: 16, borderRadius: 8 }}>
+        <AlertContainer alerts={alerts} maxDisplay={3} />
+      </div>
       
       <div style={{ marginBottom: 20 }}>
         <label style={{ fontWeight: 'bold', marginRight: 10 }}>Période :</label>

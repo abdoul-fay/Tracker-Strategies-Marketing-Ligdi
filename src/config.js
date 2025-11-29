@@ -27,6 +27,14 @@ export const CONFIG = {
     'Autre'
   ],
 
+  // Seuils d'alerte (Phase 2)
+  ALERT_THRESHOLDS: {
+    maxBudgetPerCampaign: 50000,      // Budget max par campagne
+    maxTotalBudget: 500000,           // Budget total max
+    minROI: 2.0,                      // ROI minimum attendu (%)
+    maxBudgetDeviation: 20,           // Écart max budget vs réel (%)
+  },
+
   // Formats d'export
   EXPORT_FORMATS: ['PDF', 'Excel', 'CSV'],
 

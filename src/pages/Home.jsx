@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { supabase } from '../lib/supabase';
+import { generateAlerts, AlertContainer } from '../components/AlertSystem';
 import './Home.css';
 
 // Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
@@ -99,6 +100,7 @@ export default function Home({ campagnes }) {
     }));
 
   const latestKPI = kpiList.length > 0 ? kpiList[0] : null;
+  const alerts = generateAlerts(campagnes);
 
   const COLORS = ['#6366f1', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 
@@ -109,6 +111,11 @@ export default function Home({ campagnes }) {
           <h1>📊 Tableau de Bord Marketing</h1>
           <p>Suivi complet de vos campagnes, stratégies et KPI financiers</p>
         </div>
+      </div>
+
+      {/* Section Alertes */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+        <AlertContainer alerts={alerts} maxDisplay={5} />
       </div>
 
       <div className="home-stats-grid">
