@@ -31,9 +31,10 @@ export const db = {
   },
 
   async updateCampaign(id, campaign) {
+    const { id: _, ...dataWithoutId } = campaign
     const { data, error } = await supabase
       .from('campaigns')
-      .update(campaign)
+      .update(dataWithoutId)
       .eq('id', id)
       .select()
     if (error) throw error
@@ -65,9 +66,10 @@ export const db = {
   },
 
   async updateKPI(id, kpi) {
+    const { id: _, ...dataWithoutId } = kpi
     const { data, error } = await supabase
       .from('kpi_financiers')
-      .update(kpi)
+      .update(dataWithoutId)
       .eq('id', id)
       .select()
     if (error) throw error
