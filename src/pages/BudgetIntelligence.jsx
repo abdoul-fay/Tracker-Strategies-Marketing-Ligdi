@@ -13,6 +13,7 @@ import {
   generateInsights,
   ConversationManager,
 } from '../lib/aiEngine'
+import { sanitizeAndFormat } from '../lib/safeHtml'
 
 // Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
 const formatNumber = (num) => {
@@ -589,9 +590,8 @@ export default function BudgetIntelligence({ campagnes = [] }) {
 
               {conversationHistory.map((msg, i) => {
                 try {
-                  const sanitizeHtml = require('../lib/safeHtml').sanitizeAndFormat
-                  const messageContent = sanitizeHtml(msg.ai.message || msg.ai.interpretation || '')
-                  const followUpContent = msg.ai.followUp ? sanitizeHtml('👉 ' + msg.ai.followUp) : ''
+                  const messageContent = sanitizeAndFormat(msg.ai.message || msg.ai.interpretation || '')
+                  const followUpContent = msg.ai.followUp ? sanitizeAndFormat('👉 ' + msg.ai.followUp) : ''
                   
                   return (
                     <div key={i} className="message-pair">
@@ -612,14 +612,16 @@ export default function BudgetIntelligence({ campagnes = [] }) {
                     </div>
                   )
                 } catch (err) {
-                  console.error('Erreur rendu message:', err)
+                  console.error('Erreur rendu message:', err, msg)
                   return (
                     <div key={i} className="message-pair">
                       <div className="message user-message">
                         <p>{msg.user}</p>
                       </div>
                       <div className="message ai-message">
-                        <p style={{ color: '#ef4444' }}>❌ Erreur d'affichage du message</p>
+                        <p style={{ color: '#ef4444', fontSize: '0.9rem' }}>
+                          ⚠️ Erreur d'affichage. Console: {err.message}
+                        </p>
                       </div>
                     </div>
                   )
