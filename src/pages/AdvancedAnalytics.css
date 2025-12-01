@@ -32,7 +32,8 @@
 .insights-section h2 {
   font-size: 20px;
   margin-bottom: 20px;
-  color: #1a1a2e;
+  color: #3b82f6;
+  font-weight: 700;
 }
 
 .insights-grid {
@@ -48,16 +49,19 @@
   background: #f8fafc;
   font-size: 14px;
   color: #1a1a2e;
+  border-top: 3px solid #3b82f6;
 }
 
 .insight-positive {
   border-left-color: #10b981;
   background: rgba(16, 185, 129, 0.12);
   color: #065f46;
+  border-top-color: #10b981;
 }
 
 .insight-positive .insight-title {
   color: #047857;
+  font-weight: 700;
 }
 
 .insight-positive .insight-type {
@@ -68,10 +72,12 @@
   border-left-color: #f59e0b;
   background: rgba(245, 158, 11, 0.12);
   color: #78350f;
+  border-top-color: #f59e0b;
 }
 
 .insight-warning .insight-title {
   color: #d97706;
+  font-weight: 700;
 }
 
 .insight-warning .insight-type {
@@ -82,10 +88,12 @@
   border-left-color: #3b82f6;
   background: rgba(59, 130, 246, 0.12);
   color: #1e40af;
+  border-top-color: #3b82f6;
 }
 
 .insight-info .insight-title {
   color: #1d4ed8;
+  font-weight: 700;
 }
 
 .insight-info .insight-type {
@@ -159,8 +167,9 @@
 
 .predictions-table h3 {
   margin: 0 0 15px 0;
-  color: #1a1a2e;
+  color: #3b82f6;
   font-size: 16px;
+  font-weight: 700;
 }
 
 .predictions-table table {
@@ -177,14 +186,15 @@
 .predictions-table th {
   padding: 12px;
   text-align: left;
-  font-weight: 600;
-  color: #1a1a2e;
+  font-weight: 700;
+  color: #3b82f6;
 }
 
 .predictions-table td {
   padding: 12px;
   border-bottom: 1px solid #e2e8f0;
-  color: #666;
+  color: #1a1a2e;
+  font-weight: 500;
 }
 
 .predictions-table tbody tr:hover {
