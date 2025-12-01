@@ -47,33 +47,40 @@
   border-left: 4px solid #6366f1;
   background: #f8fafc;
   font-size: 14px;
+  color: #1a1a2e;
 }
 
 .insight-positive {
   border-left-color: #10b981;
-  background: rgba(16, 185, 129, 0.05);
+  background: rgba(16, 185, 129, 0.15);
+  color: #065f46;
 }
 
 .insight-warning {
   border-left-color: #f59e0b;
-  background: rgba(245, 158, 11, 0.05);
+  background: rgba(245, 158, 11, 0.15);
+  color: #78350f;
 }
 
 .insight-info {
   border-left-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.05);
+  background: rgba(59, 130, 246, 0.15);
+  color: #1e3a8a;
 }
 
 .insight-title {
-  font-weight: 600;
-  margin-bottom: 5px;
+  font-weight: 700;
+  margin-bottom: 8px;
   color: #1a1a2e;
+  font-size: 15px;
 }
 
 .insight-type {
   font-size: 12px;
-  color: #999;
+  color: #666;
   font-style: italic;
+  display: block;
+  margin-top: 4px;
 }
 
 /* Prediction Section */

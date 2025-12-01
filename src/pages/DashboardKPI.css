@@ -53,3 +53,44 @@
   color: #999;
   margin-bottom: 40px;
 }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .dashboard-kpi {
+    padding: 20px 16px;
+  }
+  
+  .dashboard-kpi h2 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+  
+  .dashboard-kpi-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .dashboard-kpi-card {
+    padding: 16px 20px;
+  }
+  
+  .dashboard-kpi-card h4 {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+  
+  .kpi-value {
+    font-size: 1.5rem;
+  }
+  
+  .dashboard-kpi-chart {
+    padding: 16px;
+  }
+  
+  .dashboard-kpi-chart h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+}

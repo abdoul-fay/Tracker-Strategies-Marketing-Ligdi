@@ -896,35 +896,36 @@
 
   /* Health Score */
   .health-score-card {
-    padding: 16px;
-    gap: 12px;
+    grid-template-columns: 1fr;
+    padding: 20px;
+    gap: 16px;
     margin-bottom: 24px;
-    flex-direction: column;
   }
 
-  .score-container {
-    flex: 1;
+  .score-display {
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   .score-number {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
 
   .score-label {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
   }
 
   .score-details {
-    gap: 6px;
+    gap: 8px;
     flex-wrap: wrap;
   }
 
   .metric {
-    padding: 6px 10px;
-    font-size: 0.75rem;
+    padding: 10px 12px;
+    font-size: 0.8rem;
     background: rgba(255, 255, 255, 0.15);
     border-radius: 6px;
-    flex: 0 1 calc(50% - 3px);
+    flex: 1 1 45%;
   }
 
   /* Tabs */
@@ -1201,6 +1202,121 @@
   .chat-input-group button {
     padding: 8px;
     min-width: 35px;
+    border-radius: 6px;
+  }
+  
+  /* Chat Tab Mobile Optimizations */
+  .chat-tab .tab-content {
+    max-width: 100%;
+    padding: 0;
+  }
+  
+  .chat-container {
+    height: 350px;
+    max-height: 60vh;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    background: #fafbfc;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 200px;
+  }
+  
+  .welcome-message {
+    padding: 16px;
+    font-size: 0.85rem;
+  }
+  
+  .welcome-message h3 {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+  
+  .welcome-message ul {
+    font-size: 0.8rem;
+    margin: 8px 0;
+    padding-left: 16px;
+  }
+  
+  .welcome-message li {
+    margin: 4px 0;
+  }
+  
+  .example-questions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  
+  .example-btn {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    text-align: left;
+  }
+  
+  .message-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .message {
+    max-width: 85%;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+  }
+  
+  .user-message {
+    align-self: flex-end;
+  }
+  
+  .ai-message {
+    align-self: flex-start;
+  }
+  
+  .message-type-badge {
+    font-size: 0.7rem;
+    margin-bottom: 4px;
+  }
+  
+  .message p {
+    margin: 0 0 4px 0;
+  }
+  
+  .message p:last-child {
+    margin-bottom: 0;
+  }
+  
+  .follow-up {
+    font-size: 0.75rem;
+    margin-top: 6px;
+  }
+  
+  .chat-input-area {
+    padding: 10px;
+    gap: 8px;
+    border-top: 1px solid #e0e7ff;
+  }
+  
+  .chat-input-area input {
+    padding: 10px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+  }
+  
+  .chat-input-area button {
+    padding: 10px 12px;
+    font-size: 0.85rem;
     border-radius: 6px;
   }
 

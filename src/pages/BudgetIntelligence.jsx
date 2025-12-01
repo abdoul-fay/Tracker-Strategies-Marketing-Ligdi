@@ -150,11 +150,25 @@ export default function BudgetIntelligence({ campagnes = [] }) {
     if (!chatMessage.trim() || !conversationManagerRef.current) return
 
     const response = conversationManagerRef.current.processMessage(chatMessage)
+    
+    // Vérification que response a le bon format
+    if (!response || typeof response !== 'object') {
+      console.error('Invalid response format:', response)
+      return
+    }
+    
+    const aiResponse = {
+      message: response.message || response.interpretation || 'Réponse indisponible',
+      interpretation: response.interpretation,
+      followUp: response.followUp,
+      type: response.type || 'response'
+    }
+    
     setConversationHistory([
       ...conversationHistory,
       {
         user: chatMessage,
-        ai: response,
+        ai: aiResponse,
         timestamp: new Date(),
       },
     ])
@@ -573,23 +587,44 @@ export default function BudgetIntelligence({ campagnes = [] }) {
                 </div>
               )}
 
-              {conversationHistory.map((msg, i) => (
-                <div key={i} className="message-pair">
-                  <div className="message user-message">
-                    <p>{msg.user}</p>
-                  </div>
-                  <div className="message ai-message">
-                    <div className="message-type-badge">{msg.ai.type || 'response'}</div>
-                    <div
-                      className="preserve-whitespace"
-                      dangerouslySetInnerHTML={{ __html: require('../lib/safeHtml').sanitizeAndFormat(msg.ai.message || msg.ai.interpretation) }}
-                    />
-                    {msg.ai.followUp && (
-                      <div className="follow-up preserve-whitespace" dangerouslySetInnerHTML={{ __html: require('../lib/safeHtml').sanitizeAndFormat('👉 ' + msg.ai.followUp) }} />
-                    )}
-                  </div>
-                </div>
-              ))}
+              {conversationHistory.map((msg, i) => {
+                try {
+                  const sanitizeHtml = require('../lib/safeHtml').sanitizeAndFormat
+                  const messageContent = sanitizeHtml(msg.ai.message || msg.ai.interpretation || '')
+                  const followUpContent = msg.ai.followUp ? sanitizeHtml('👉 ' + msg.ai.followUp) : ''
+                  
+                  return (
+                    <div key={i} className="message-pair">
+                      <div className="message user-message">
+                        <p>{msg.user}</p>
+                      </div>
+                      <div className="message ai-message">
+                        <div className="message-type-badge">{msg.ai.type || 'response'}</div>
+                        {messageContent ? (
+                          <div className="preserve-whitespace" dangerouslySetInnerHTML={{ __html: messageContent }} />
+                        ) : (
+                          <p style={{ color: '#999', fontStyle: 'italic' }}>Réponse indisponible</p>
+                        )}
+                        {followUpContent && (
+                          <div className="follow-up preserve-whitespace" dangerouslySetInnerHTML={{ __html: followUpContent }} />
+                        )}
+                      </div>
+                    </div>
+                  )
+                } catch (err) {
+                  console.error('Erreur rendu message:', err)
+                  return (
+                    <div key={i} className="message-pair">
+                      <div className="message user-message">
+                        <p>{msg.user}</p>
+                      </div>
+                      <div className="message ai-message">
+                        <p style={{ color: '#ef4444' }}>❌ Erreur d'affichage du message</p>
+                      </div>
+                    </div>
+                  )
+                }
+              })}
               <div ref={chatEndRef} />
             </div>
 
