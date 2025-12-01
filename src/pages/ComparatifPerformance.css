@@ -96,8 +96,8 @@
 }
 
 .ecart-label {
-  color: #444;
-  font-weight: 600;
+  color: #1a1a2e;
+  font-weight: 700;
   margin-bottom: 12px;
   font-size: 0.95rem;
 }
@@ -110,14 +110,15 @@
 .ecart-value {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #0f172a;
   margin-bottom: 8px;
 }
 
 .ecart-status {
   font-size: 0.85rem;
-  color: #666;
+  color: #404040;
   margin: 0;
+  font-weight: 500;
 }
 
 .comparatif-detailed {
@@ -161,6 +162,8 @@
 
 .table-cell {
   text-align: center;
+  color: #1a1a2e;
+  font-weight: 500;
 }
 
 .table-row:hover {
@@ -204,10 +207,11 @@
 }
 
 .insight-text {
-  color: #666;
+  color: #404040;
   line-height: 1.6;
   margin: 0;
   font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .comparatif-empty {
