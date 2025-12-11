@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { LineChart, Line, Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { predictFutureTrend, generateInsights, detectAnomalies } from '../lib/predictions'
+import { generateAdaptiveAlerts, calculateAdaptiveThresholds, evaluateStrategySuccess } from '../lib/adaptiveAlerts'
 import './AdvancedAnalytics.css'
 
 // Formatteur de nombres
@@ -15,6 +16,16 @@ const formatNumber = (num) => {
 export default function AdvancedAnalytics({ campagnes = [] }) {
   const [predictionMonths, setPredictionMonths] = useState(3)
   const [selectedMetric, setSelectedMetric] = useState('budget')
+
+  // Charger les paramètres KPI
+  const kpiSettings = useMemo(() => {
+    try {
+      const saved = localStorage.getItem('kpiSettings')
+      return saved ? JSON.parse(saved) : {}
+    } catch {
+      return {}
+    }
+  }, [])
 
   // Calculer l'historique mensuel
   const monthlyHistory = useMemo(() => {
@@ -57,6 +68,15 @@ export default function AdvancedAnalytics({ campagnes = [] }) {
     return detectAnomalies(budgetHistory)
   }, [budgetHistory])
 
+  // Alertes adaptatives
+  const thresholds = useMemo(() => {
+    return calculateAdaptiveThresholds(campagnes, kpiSettings)
+  }, [campagnes, kpiSettings])
+
+  const adaptiveAlerts = useMemo(() => {
+    return generateAdaptiveAlerts(campagnes, thresholds)
+  }, [campagnes, thresholds])
+
   // Préparer les données pour le graphique (historique + prédictions)
   const chartData = useMemo(() => {
     const historical = monthlyHistory.map(m => ({
@@ -84,6 +104,30 @@ export default function AdvancedAnalytics({ campagnes = [] }) {
         <h1>🔮 Analyse Avancée & Prédictions</h1>
         <p>Tendances futures et insights intelligents basés sur ML</p>
       </div>
+
+      {/* Section Alertes Adaptatives */}
+      {adaptiveAlerts.length > 0 && (
+        <div className="adaptive-alerts-section">
+          <h2>⚠️ Alertes Intelligentes Adaptatives</h2>
+          <div className="alerts-grid">
+            {adaptiveAlerts.map((alert, i) => (
+              <div key={i} className={`alert-card alert-${alert.severity}`}>
+                <div className="alert-header">
+                  <strong>{alert.message}</strong>
+                </div>
+                <div className="alert-body">
+                  <p className="alert-campaign">{alert.campaign}</p>
+                  <p className="alert-explanation">{alert.explanation}</p>
+                  <div className="alert-values">
+                    <span>Actuel: {typeof alert.value === 'number' ? alert.value.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) : alert.value}</span>
+                    <span>Seuil: {typeof alert.threshold === 'number' ? alert.threshold.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) : alert.threshold}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Section Insights */}
       <div className="insights-section">
