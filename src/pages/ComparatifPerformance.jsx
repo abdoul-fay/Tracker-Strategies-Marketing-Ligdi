@@ -72,9 +72,9 @@ export default function ComparatifPerformance() {
   const ecarts = {
     coutUtilisateur: {
       value: Number(parseReel.coutUtilisateur || 0) - Number(parseCible.coutUtilisateur || 0),
-      label: 'Coût Utilisateur',
-      // Pour coût: Réel < Cible = BON (vert), Réel > Cible = MAUVAIS (rouge)
-      isGood: Number(parseReel.coutUtilisateur || 0) <= Number(parseCible.coutUtilisateur || 0)
+      label: 'Nombre d\'Utilisateurs',
+      // Pour utilisateurs: Réel > Cible = BON (vert), Réel < Cible = MAUVAIS (rouge)
+      isGood: Number(parseReel.coutUtilisateur || 0) >= Number(parseCible.coutUtilisateur || 0)
     },
     CPA: {
       value: Number(parseReel.CPA || 0) - Number(parseCible.CPA || 0),
@@ -111,7 +111,7 @@ export default function ComparatifPerformance() {
   // Données graphique
   const chartData = [
     {
-      name: 'Coût Utilisateur',
+      name: 'Nombre d\'Utilisateurs',
       Cible: Number(parseCible.coutUtilisateur || 0),
       Réel: Number(parseReel.coutUtilisateur || 0),
       ecart: ecarts.coutUtilisateur.value
