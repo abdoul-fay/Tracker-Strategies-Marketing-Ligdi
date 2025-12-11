@@ -53,17 +53,17 @@ export default function Dashboard({ campagnes }) {
   const kpiSummary = useMemo(() => {
     const totalBudget = Object.values(stats.byMonth).reduce((sum, m) => sum + m.budget, 0)
     const totalReal = Object.values(stats.byMonth).reduce((sum, m) => sum + m.real, 0)
-    const avgROI = Object.values(stats.byMonth).length > 0
-      ? Object.values(stats.byMonth).reduce((sum, m) => sum + m.roi, 0) / Object.values(stats.byMonth).length
-      : 0
     const totalReach = campagnes.reduce((sum, c) => sum + (c.reach || 0), 0)
+    
+    // ROI = (Reach × 171 F par utilisateur) / Budget Réel Dépensé
+    const roiValue = totalReal > 0 ? (totalReach * 171) / totalReal : 0
     
     return {
       budgetPrevu: totalBudget,
       budgetReel: totalReal,
       economie: totalBudget - totalReal,
       ecart: totalBudget > 0 ? ((totalBudget - totalReal) / totalBudget * 100).toFixed(1) : 0,
-      roi: avgROI.toFixed(2),
+      roi: roiValue.toFixed(2),
       reach: totalReach,
       campagnes: campagnes.length
     }
@@ -103,33 +103,27 @@ export default function Dashboard({ campagnes }) {
       {/* Section KPI Prioritaires */}
       <div className="kpi-grid-primary">
         <div className="kpi-card-primary">
-          <div className="kpi-label">💰 Budget Prévu</div>
-          <div className="kpi-value">{formatNumber(kpiSummary.budgetPrevu)}</div>
+          <div className="kpi-label">💰 Budget Réel Dépensé</div>
+          <div className="kpi-value">{formatNumber(kpiSummary.budgetReel)}</div>
           <div className="kpi-unit">FCFA</div>
         </div>
         
         <div className="kpi-card-primary">
-          <div className="kpi-label">✅ Budget Réel</div>
-          <div className="kpi-value">{formatNumber(kpiSummary.budgetReel)}</div>
-          <div className="kpi-unit">FCFA</div>
+          <div className="kpi-label">🎯 ROI (Retour/Utilisateur)</div>
+          <div className="kpi-value">{kpiSummary.roi}</div>
+          <div className="kpi-unit">F par utilisateur</div>
         </div>
 
         <div className={`kpi-card-primary ${kpiSummary.ecart >= 0 ? 'positive' : 'negative'}`}>
-          <div className="kpi-label">📈 Économies</div>
-          <div className="kpi-value">{formatNumber(kpiSummary.economie)}</div>
-          <div className="kpi-unit">{kpiSummary.ecart}%</div>
+          <div className="kpi-label">📈 Écart Budgétaire</div>
+          <div className="kpi-value">{kpiSummary.ecart}%</div>
+          <div className="kpi-unit">Prévu vs Réel</div>
         </div>
 
         <div className="kpi-card-primary">
-          <div className="kpi-label">🎯 ROI Moyen</div>
-          <div className="kpi-value">{kpiSummary.roi}%</div>
-          <div className="kpi-unit">{kpiSummary.campagnes} campagnes</div>
-        </div>
-
-        <div className="kpi-card-primary">
-          <div className="kpi-label">👥 Reach Total</div>
+          <div className="kpi-label">👥 Utilisateurs Atteints</div>
           <div className="kpi-value">{formatNumber(kpiSummary.reach)}</div>
-          <div className="kpi-unit">contacts</div>
+          <div className="kpi-unit">{kpiSummary.campagnes} campagnes</div>
         </div>
       </div>
 
