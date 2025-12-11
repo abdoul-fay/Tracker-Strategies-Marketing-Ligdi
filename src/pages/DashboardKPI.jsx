@@ -66,7 +66,7 @@ export default function DashboardKPI() {
   // Préparer les données pour le comparatif Cible vs Réel
   const comparatifData = [
     {
-      name: 'Coût Utilisateur',
+      name: 'Nombre d\'Utilisateurs',
       Cible: Number(parseCible.coutUtilisateur || 0),
       Réel: Number(parseReel.coutUtilisateur || 0)
     },
