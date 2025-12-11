@@ -10,6 +10,68 @@
   letter-spacing: -0.5px;
 }
 
+/* KPI Grid Principal - Cible vs Réel */
+.kpi-grid-primary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.kpi-card-primary {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(60, 60, 120, 0.08);
+  border-left: 4px solid #6366f1;
+  transition: all 0.3s ease;
+}
+
+.kpi-card-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(60, 60, 120, 0.12);
+}
+
+.kpi-card-primary.positive {
+  border-left-color: #10b981;
+}
+
+.kpi-card-primary.negative {
+  border-left-color: #ef4444;
+}
+
+.kpi-label {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.4px;
+  font-weight: 600;
+}
+
+.kpi-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #6366f1;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.kpi-card-primary.positive .kpi-value {
+  color: #10b981;
+}
+
+.kpi-card-primary.negative .kpi-value {
+  color: #ef4444;
+}
+
+.kpi-unit {
+  font-size: 10px;
+  color: #bbb;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -151,6 +213,46 @@
   border-bottom: 2px solid #e0e7ff;
   padding-bottom: 12px;
   font-weight: 700;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard h1 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .kpi-grid-primary {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+
+  .kpi-card-primary {
+    padding: 16px 12px;
+  }
+
+  .kpi-label {
+    font-size: 10px;
+  }
+
+  .kpi-value {
+    font-size: 18px;
+  }
+
+  .dashboard-section {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .dashboard-section h2 {
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+
+  .charts-section {
+    grid-template-columns: 1fr;
+  }
 }
 
 
