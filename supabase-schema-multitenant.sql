@@ -106,7 +106,8 @@ CREATE INDEX IF NOT EXISTS idx_campaigns_tenant_id ON public.campaigns(tenant_id
 ALTER TABLE public.campaigns ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy for campaigns - Users can only see campaigns from their tenant
-CREATE POLICY IF NOT EXISTS "Campaigns - Isolate by tenant"
+DROP POLICY IF EXISTS "Campaigns - Isolate by tenant" ON public.campaigns;
+CREATE POLICY "Campaigns - Isolate by tenant"
   ON public.campaigns
   FOR ALL
   USING (
@@ -130,7 +131,8 @@ CREATE INDEX IF NOT EXISTS idx_ambassadeurs_tenant_id ON public.ambassadeurs(ten
 ALTER TABLE public.ambassadeurs ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy
-CREATE POLICY IF NOT EXISTS "Ambassadeurs - Isolate by tenant"
+DROP POLICY IF EXISTS "Ambassadeurs - Isolate by tenant" ON public.ambassadeurs;
+CREATE POLICY "Ambassadeurs - Isolate by tenant"
   ON public.ambassadeurs
   FOR ALL
   USING (
@@ -154,7 +156,8 @@ CREATE INDEX IF NOT EXISTS idx_strategies_tenant_id ON public.strategies(tenant_
 ALTER TABLE public.strategies ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy
-CREATE POLICY IF NOT EXISTS "Strategies - Isolate by tenant"
+DROP POLICY IF EXISTS "Strategies - Isolate by tenant" ON public.strategies;
+CREATE POLICY "Strategies - Isolate by tenant"
   ON public.strategies
   FOR ALL
   USING (
@@ -190,6 +193,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DE
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy - Users can only see their tenant's audit logs
+DROP POLICY IF EXISTS "Audit - Isolate by tenant" ON public.audit_logs;
 CREATE POLICY "Audit - Isolate by tenant"
   ON public.audit_logs
   FOR SELECT
