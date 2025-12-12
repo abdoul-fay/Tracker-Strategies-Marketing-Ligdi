@@ -128,6 +128,14 @@ export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDark
             🏆 Benchmarking
           </button>
         </li>
+        <li>
+          <button 
+            className={`nav-link ${currentPage === 'predictions' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('predictions')}
+          >
+            🔮 Prédictions
+          </button>
+        </li>
         <li style={{ marginLeft: 'auto' }}>
           <NotificationBell />
         </li>

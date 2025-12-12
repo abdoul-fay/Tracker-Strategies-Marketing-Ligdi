@@ -17,6 +17,7 @@ import Overview from './pages/Overview'
 import Recommendations from './pages/Recommendations'
 import AmbassadeursCampagnes from './pages/AmbassadeursCampagnes'
 import Benchmarking from './pages/Benchmarking'
+import Predictions from './pages/Predictions'
 import { db } from './lib/supabase'
 import { useDarkMode } from './hooks/useDarkMode'
 import './App.css'
@@ -227,6 +228,10 @@ export default function App() {
             {currentPage === 'benchmarking' && (
               <Benchmarking campagnes={campagnes} />
             )}
+            {currentPage === 'predictions' && (
+              <Predictions campagnes={campagnes} />
+            )}
+          </>
         )}
       </div>
     </div>

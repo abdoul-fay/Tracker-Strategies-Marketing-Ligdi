@@ -1,0 +1,400 @@
+.predictions {
+  width: 100%;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.predictions-header {
+  margin-bottom: 30px;
+}
+
+.predictions-header h1 {
+  font-size: 28px;
+  color: #6366f1;
+  margin: 0 0 8px 0;
+  font-weight: 800;
+}
+
+.predictions-header p {
+  color: #999;
+  margin: 0;
+  font-size: 14px;
+}
+
+.predictions-controls {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.control-group select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  min-width: 150px;
+}
+
+.control-group select:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.forecast-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.forecast-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(60, 60, 120, 0.08);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border-left: 4px solid #6366f1;
+}
+
+.card-icon {
+  font-size: 28px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.card-content h3 {
+  margin: 0 0 4px 0;
+  color: #333;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.card-value {
+  margin: 0 0 4px 0;
+  color: #6366f1;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.card-change {
+  margin: 0;
+  color: #10b981;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.predictions-section {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(60, 60, 120, 0.08);
+  margin-bottom: 24px;
+}
+
+.predictions-section h2 {
+  margin: 0 0 20px 0;
+  color: #6366f1;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.chart-container {
+  width: 100%;
+  height: 300px;
+  margin-bottom: 20px;
+}
+
+.scenarios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.scenario-card {
+  background: #f8fafc;
+  border: 2px solid #e0e7ff;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.scenario-card:hover {
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px);
+}
+
+.scenario-header {
+  border-left: 4px solid #6366f1;
+  padding: 16px;
+  background: white;
+}
+
+.scenario-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.scenario-desc {
+  margin: 0;
+  color: #999;
+  font-size: 12px;
+}
+
+.scenario-projections {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  text-align: center;
+}
+
+.projection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.projection-period {
+  font-size: 11px;
+  color: #999;
+  font-weight: 600;
+}
+
+.projection-value {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.insight-card {
+  background: white;
+  border: 2px solid #e0e7ff;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.3s ease;
+}
+
+.insight-card:hover {
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px);
+}
+
+.insight-card.insight-high {
+  border-left: 4px solid #ef4444;
+}
+
+.insight-card.insight-medium {
+  border-left: 4px solid #f59e0b;
+}
+
+.insight-header {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.insight-icon {
+  font-size: 20px;
+  min-width: 20px;
+}
+
+.insight-header h4 {
+  margin: 0;
+  color: #333;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.insight-value {
+  color: #6366f1;
+  font-size: 20px;
+  font-weight: 800;
+  margin: 8px 0;
+}
+
+.insight-detail {
+  margin: 4px 0;
+  color: #999;
+  font-size: 12px;
+}
+
+.insight-action {
+  background: #f8fafc;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.action-label {
+  font-weight: 600;
+  color: #6366f1;
+}
+
+.action-text {
+  color: #666;
+  display: block;
+  margin-top: 4px;
+}
+
+.implementation-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.step {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #6366f1;
+}
+
+.step-number {
+  background: #6366f1;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.step-content h4 {
+  margin: 0 0 6px 0;
+  color: #333;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.step-content p {
+  margin: 0 0 8px 0;
+  color: #666;
+  font-size: 12px;
+}
+
+.step-content ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.step-content li {
+  color: #666;
+  font-size: 12px;
+  margin: 4px 0;
+}
+
+.metrics-guide {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-name {
+  font-weight: 700;
+  color: #333;
+  font-size: 13px;
+}
+
+.metric-target {
+  color: #6366f1;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.metric-bar {
+  background: #e0e7ff;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.metric-fill {
+  background: linear-gradient(90deg, #6366f1, #3b82f6);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.empty-state {
+  background: white;
+  padding: 60px 20px;
+  border-radius: 12px;
+  text-align: center;
+  color: #999;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .forecast-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .scenarios-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-projections {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .implementation-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-guide {
+    grid-template-columns: 1fr;
+  }
+
+  .predictions-section {
+    padding: 16px;
+  }
+
+  .predictions-header h1 {
+    font-size: 22px;
+  }
+}
