@@ -70,11 +70,16 @@ export default function AdvancedAnalytics({ campagnes = [] }) {
 
   // Alertes adaptatives
   const thresholds = useMemo(() => {
-    return calculateAdaptiveThresholds(campagnes, kpiSettings)
+    const calc = calculateAdaptiveThresholds(campagnes, kpiSettings)
+    console.log('📋 Thresholds calculated in AdvancedAnalytics:', calc)
+    return calc
   }, [campagnes, kpiSettings])
 
   const adaptiveAlerts = useMemo(() => {
-    return generateAdaptiveAlerts(campagnes, thresholds)
+    console.log('🎯 Generating alerts with thresholds:', thresholds)
+    const alerts = generateAdaptiveAlerts(campagnes, thresholds)
+    console.log('🚨 Generated alerts:', alerts)
+    return alerts
   }, [campagnes, thresholds])
 
   // Préparer les données pour le graphique (historique + prédictions)

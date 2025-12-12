@@ -1,10 +1,35 @@
 name = "ligdi-marketing-tracker"
 type = "javascript"
-account_id = ""
-workers_dev = false
-route = ""
-zone_id = ""
+account_id = "YOUR_ACCOUNT_ID"
+workers_dev = true
+main = "dist/index.js"
+compatibility_date = "2024-12-01"
 
 [env.production]
 name = "ligdi-marketing-tracker-prod"
-routes = []
+route = "yourdomain.com/*"
+zone_id = "YOUR_ZONE_ID"
+
+[build]
+command = "npm run build"
+cwd = "./"
+watch_paths = ["src/**/*.{jsx,js,css}"]
+
+[env.production.build]
+command = "npm run build"
+cwd = "./"
+
+[[env.production.routes]]
+pattern = "yourdomain.com/*"
+zone_name = "yourdomain.com"
+
+[triggers]
+crons = []
+
+[vars]
+VITE_SUPABASE_URL = "YOUR_SUPABASE_URL"
+VITE_SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY"
+
+# Cloudflare Pages configuration
+pages_build_output_dir = "dist"
+pages_build_caching = true

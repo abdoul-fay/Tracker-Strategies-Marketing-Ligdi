@@ -3,4 +3,23 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    outDir: 'dist',
+    sourcemap: true,
+    minify: 'terser',
+    target: 'esnext',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          recharts: ['recharts'],
+          supabase: ['@supabase/supabase-js']
+        }
+      }
+    }
+  },
+  server: {
+    port: 5173,
+    strictPort: false
+  }
 })

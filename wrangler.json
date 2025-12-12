@@ -1,0 +1,21 @@
+{
+  "pages_build_caching": true,
+  "pages_build_output_dir": "./dist",
+  "build": {
+    "command": "npm run build",
+    "cwd": null,
+    "root": null
+  },
+  "env": {
+    "production": {
+      "vars": {
+        "ENVIRONMENT": "production"
+      }
+    },
+    "staging": {
+      "vars": {
+        "ENVIRONMENT": "staging"
+      }
+    }
+  }
+}

@@ -353,28 +353,28 @@ export default function Predictions({ campagnes = [] }) {
             <div className="metrics-guide">
               <div className="metric">
                 <span className="metric-name">Cost Per Acquisition (CPA)</span>
-                <span className="metric-target">Target: < 50 FCFA</span>
+                <span className="metric-target">Target: &lt; 50 FCFA</span>
                 <div className="metric-bar">
                   <div className="metric-fill" style={{width: '65%'}}></div>
                 </div>
               </div>
               <div className="metric">
                 <span className="metric-name">Return on Ad Spend (ROAS)</span>
-                <span className="metric-target">Target: > 300%</span>
+                <span className="metric-target">Target: &gt; 300%</span>
                 <div className="metric-bar">
                   <div className="metric-fill" style={{width: '75%'}}></div>
                 </div>
               </div>
               <div className="metric">
                 <span className="metric-name">Engagement Rate</span>
-                <span className="metric-target">Target: > 8%</span>
+                <span className="metric-target">Target: &gt; 8%</span>
                 <div className="metric-bar">
                   <div className="metric-fill" style={{width: '55%'}}></div>
                 </div>
               </div>
               <div className="metric">
                 <span className="metric-name">Conversion Rate</span>
-                <span className="metric-target">Target: > 3.5%</span>
+                <span className="metric-target">Target: &gt; 3.5%</span>
                 <div className="metric-bar">
                   <div className="metric-fill" style={{width: '70%'}}></div>
                 </div>

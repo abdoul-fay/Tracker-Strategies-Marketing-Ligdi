@@ -13,8 +13,10 @@
  * @returns {Object} Seuils adaptatifs
  */
 export function calculateAdaptiveThresholds(campagnes = [], kpiTargets = {}) {
+  console.log('🔍 calculateAdaptiveThresholds - Campagnes:', campagnes.length, campagnes)
+  
   if (campagnes.length === 0) {
-    // Seuils par défaut si aucune donnée historique
+    console.log('❌ Aucune campagne, retour des seuils par défaut')
     return getDefaultThresholds()
   }
 
@@ -23,15 +25,23 @@ export function calculateAdaptiveThresholds(campagnes = [], kpiTargets = {}) {
   const rois = campagnes.map(c => c.roi || 0).filter(r => r >= 0)
   const reaches = campagnes.map(c => c.reach || 0).filter(r => r > 0)
 
+  console.log('📊 Budgets trouvés:', budgets, 'Rois:', rois, 'Reaches:', reaches)
+
   const avgBudget = budgets.length > 0 ? budgets.reduce((a, b) => a + b, 0) / budgets.length : 0
   const avgROI = rois.length > 0 ? rois.reduce((a, b) => a + b, 0) / rois.length : 0
   const avgReach = reaches.length > 0 ? reaches.reduce((a, b) => a + b, 0) / reaches.length : 0
+  const maxBudget = budgets.length > 0 ? Math.max(...budgets) : 0
+
+  console.log('📈 Moyennes - Budget:', avgBudget, 'ROI:', avgROI, 'Reach:', avgReach, 'Max Budget:', maxBudget)
 
   // Calcul dynamique des seuils
+  const budgetThreshold = Math.max(maxBudget * 1.15, avgBudget * 1.3)
+  const globalThreshold = Math.max(maxBudget * campagnes.length * 0.7, avgBudget * campagnes.length * 1.3)
+  
   const thresholds = {
-    // Budget: moyenne + 30% de marge
-    budgetPerCampaign: avgBudget * 1.3,
-    budgetGlobal: avgBudget * campagnes.length * 1.3,
+    // Budget: max observé + 15%, ou moyenne + 30% (le plus élevé)
+    budgetPerCampaign: budgetThreshold,
+    budgetGlobal: globalThreshold,
     
     // ROI: basé sur l'objectif - 20% de tolérance
     roiMin: (kpiTargets.roi || avgROI * 0.8) * 0.8,
@@ -48,6 +58,7 @@ export function calculateAdaptiveThresholds(campagnes = [], kpiTargets = {}) {
     budgetVarianceMax: calculateStdDev(budgets) * 1.5
   }
 
+  console.log('✅ Seuils calculés:', thresholds)
   return thresholds
 }
 
@@ -59,12 +70,15 @@ export function calculateAdaptiveThresholds(campagnes = [], kpiTargets = {}) {
  */
 export function generateAdaptiveAlerts(campagnes = [], thresholds = {}) {
   const alerts = []
-  const defaultThresholds = getDefaultThresholds()
-  const finalThresholds = { ...defaultThresholds, ...thresholds }
 
   if (campagnes.length === 0) {
     return alerts
   }
+
+  // Utiliser les seuils fournis, sinon utiliser les defaults
+  const finalThresholds = thresholds && Object.keys(thresholds).length > 0 
+    ? thresholds 
+    : getDefaultThresholds()
 
   // Analyser chaque campagne
   campagnes.forEach(campagne => {
@@ -80,10 +94,10 @@ export function generateAdaptiveAlerts(campagnes = [], thresholds = {}) {
         type: 'budget_high',
         severity: excess > 50 ? 'high' : 'medium',
         campaign: name,
-        message: `⚠️ Budget élevé: ${budget.toLocaleString('fr-FR')} FCFA (+${excess}% vs moyenne)`,
+        message: `⚠️ Budget élevé: ${budget.toLocaleString('fr-FR')} FCFA (+${excess}% vs seuil)`,
         value: budget,
         threshold: finalThresholds.budgetPerCampaign,
-        explanation: `Budget dépasse la normale pour vos campagnes (moyenne: ${finalThresholds.budgetPerCampaign.toLocaleString('fr-FR')} FCFA)`
+        explanation: `Budget dépasse le seuil adaptatif (seuil: ${finalThresholds.budgetPerCampaign.toLocaleString('fr-FR')} FCFA)`
       })
     }
 
@@ -96,7 +110,7 @@ export function generateAdaptiveAlerts(campagnes = [], thresholds = {}) {
         message: `📉 ROI faible: ${roi.toFixed(1)}% (cible: ${finalThresholds.roiTarget.toFixed(1)}%)`,
         value: roi,
         threshold: finalThresholds.roiTarget,
-        explanation: `ROI inférieur à l'objectif. Stratégie à revoir.`
+        explanation: `ROI inférieur à l'objectif adaptatif. Stratégie à revoir.`
       })
     }
 
@@ -109,7 +123,7 @@ export function generateAdaptiveAlerts(campagnes = [], thresholds = {}) {
         message: `👥 Reach faible: ${reach.toLocaleString('fr-FR')} (cible: ${finalThresholds.reachTarget.toLocaleString('fr-FR')})`,
         value: reach,
         threshold: finalThresholds.reachTarget,
-        explanation: `Portée inférieure à l'objectif. Augmentez la visibilité ou le budget.`
+        explanation: `Portée inférieure au seuil adaptatif. Augmentez la visibilité ou le budget.`
       })
     }
 
@@ -124,7 +138,7 @@ export function generateAdaptiveAlerts(campagnes = [], thresholds = {}) {
           message: `💰 Efficacité faible: ${costPerResult.toFixed(2)} FCFA/résultat`,
           value: costPerResult,
           threshold: finalThresholds.costPerResultMax,
-          explanation: `Coût par résultat trop élevé. Optimisez votre stratégie.`
+          explanation: `Coût par résultat dépasse le seuil adaptatif (${finalThresholds.costPerResultMax.toFixed(2)} FCFA max)`
         })
       }
     }
@@ -146,7 +160,7 @@ export function generateAdaptiveAlerts(campagnes = [], thresholds = {}) {
       message: `📊 Budget global élevé: ${totalBudget.toLocaleString('fr-FR')} FCFA (+${excess}%)`,
       value: totalBudget,
       threshold: finalThresholds.budgetGlobal,
-      explanation: `Le budget total dépasse la normale basée sur votre historique.`
+      explanation: `Le budget total dépasse le seuil adaptatif basé sur votre historique (${finalThresholds.budgetGlobal.toLocaleString('fr-FR')} FCFA).`
     })
   }
 
@@ -159,7 +173,7 @@ export function generateAdaptiveAlerts(campagnes = [], thresholds = {}) {
       message: `📉 ROI moyen faible: ${avgROI.toFixed(1)}% (cible: ${finalThresholds.roiTarget.toFixed(1)}%)`,
       value: avgROI,
       threshold: finalThresholds.roiTarget,
-      explanation: `Les performances globales ne répondent pas aux objectifs.`
+      explanation: `Les performances globales ne répondent pas aux objectifs adaptatifs.`
     })
   }
 
