@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { getTenantId } from './multiTenant'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -13,18 +14,26 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 export const db = {
   // Campaigns
   async getCampaigns() {
+    const tenantId = getTenantId()
+    if (!tenantId) {
+      console.warn('⚠️ No tenant_id found. User may not be authenticated.')
+      return []
+    }
     const { data, error } = await supabase
       .from('campaigns')
       .select('*')
+      .eq('tenant_id', tenantId)
       .order('created_at', { ascending: false })
     if (error) throw error
     return data || []
   },
 
   async addCampaign(campaign) {
+    const tenantId = getTenantId()
+    if (!tenantId) throw new Error('No tenant_id. User not authenticated.')
     const { data, error } = await supabase
       .from('campaigns')
-      .insert([campaign])
+      .insert([{ ...campaign, tenant_id: tenantId }])
       .select()
     if (error) throw error
     return data[0]
@@ -83,18 +92,26 @@ export const db = {
 
   // Strategies
   async getStrategies() {
+    const tenantId = getTenantId()
+    if (!tenantId) {
+      console.warn('⚠️ No tenant_id found. User may not be authenticated.')
+      return []
+    }
     const { data, error } = await supabase
       .from('strategies')
       .select('*')
+      .eq('tenant_id', tenantId)
       .order('created_at', { ascending: false })
     if (error) throw error
     return data || []
   },
 
   async addStrategy(strategy) {
+    const tenantId = getTenantId()
+    if (!tenantId) throw new Error('No tenant_id. User not authenticated.')
     const { data, error } = await supabase
       .from('strategies')
-      .insert([strategy])
+      .insert([{ ...strategy, tenant_id: tenantId }])
       .select()
     if (error) throw error
     return data[0]
@@ -118,18 +135,26 @@ export const db = {
 
   // Ambassadeurs (français)
   async getAmbassadors() {
+    const tenantId = getTenantId()
+    if (!tenantId) {
+      console.warn('⚠️ No tenant_id found. User may not be authenticated.')
+      return []
+    }
     const { data, error } = await supabase
       .from('ambassadeurs')
       .select('*')
+      .eq('tenant_id', tenantId)
       .order('created_at', { ascending: false })
     if (error) throw error
     return data || []
   },
 
   async addAmbassador(ambassador) {
+    const tenantId = getTenantId()
+    if (!tenantId) throw new Error('No tenant_id. User not authenticated.')
     const { data, error } = await supabase
       .from('ambassadeurs')
-      .insert([ambassador])
+      .insert([{ ...ambassador, tenant_id: tenantId }])
       .select()
     if (error) throw error
     return data[0]
