@@ -88,6 +88,14 @@ export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDark
             🤖 Budget Intelligence IA
           </button>
         </li>
+        <li>
+          <button 
+            className={`nav-link ${currentPage === 'kpisettings' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('kpisettings')}
+          >
+            ⚙️ Paramètres KPI
+          </button>
+        </li>
         <li style={{ marginLeft: 'auto' }}>
           <NotificationBell />
         </li>

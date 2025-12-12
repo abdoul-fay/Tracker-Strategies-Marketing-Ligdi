@@ -12,6 +12,7 @@ import KPIFinanciers from './pages/KPIFinanciers'
 import ComparatifPerformance from './pages/ComparatifPerformance'
 import BudgetIntelligence from './pages/BudgetIntelligence'
 import AdvancedAnalytics from './pages/AdvancedAnalytics'
+import KPISettings from './pages/KPISettings'
 import { db } from './lib/supabase'
 import { useDarkMode } from './hooks/useDarkMode'
 import './App.css'
@@ -206,6 +207,9 @@ export default function App() {
             )}
             {currentPage === 'advanced' && (
               <AdvancedAnalytics campagnes={campagnes} />
+            )}
+            {currentPage === 'kpisettings' && (
+              <KPISettings />
             )}
           </>
         )}
