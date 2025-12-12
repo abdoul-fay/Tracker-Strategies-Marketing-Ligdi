@@ -103,26 +103,26 @@ export default function Dashboard({ campagnes }) {
       {/* Section KPI Prioritaires */}
       <div className="kpi-grid-primary">
         <div className="kpi-card-primary">
-          <div className="kpi-label">💰 Budget Réel Dépensé</div>
+          <div className="kpi-label">💰 Budget Réel</div>
           <div className="kpi-value">{formatNumber(kpiSummary.budgetReel)}</div>
-          <div className="kpi-unit">FCFA</div>
+          <div className="kpi-unit">FCFA dépensé</div>
         </div>
         
         <div className="kpi-card-primary">
-          <div className="kpi-label">🎯 ROI (Retour/Utilisateur)</div>
+          <div className="kpi-label">👥 Utilisateurs Total</div>
+          <div className="kpi-value">{formatNumber(kpiSummary.reach)}</div>
+          <div className="kpi-unit">contacts atteints</div>
+        </div>
+
+        <div className="kpi-card-primary">
+          <div className="kpi-label">🎯 ROI par Utilisateur</div>
           <div className="kpi-value">{kpiSummary.roi}</div>
-          <div className="kpi-unit">F par utilisateur</div>
+          <div className="kpi-unit">F de retour</div>
         </div>
 
         <div className={`kpi-card-primary ${kpiSummary.ecart >= 0 ? 'positive' : 'negative'}`}>
           <div className="kpi-label">📈 Écart Budgétaire</div>
           <div className="kpi-value">{kpiSummary.ecart}%</div>
-          <div className="kpi-unit">Prévu vs Réel</div>
-        </div>
-
-        <div className="kpi-card-primary">
-          <div className="kpi-label">👥 Utilisateurs Atteints</div>
-          <div className="kpi-value">{formatNumber(kpiSummary.reach)}</div>
           <div className="kpi-unit">{kpiSummary.campagnes} campagnes</div>
         </div>
       </div>
