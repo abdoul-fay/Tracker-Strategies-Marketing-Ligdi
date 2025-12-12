@@ -48,7 +48,7 @@ export default function App() {
       } catch (err) {
         console.error('❌ Error loading data from Supabase:', err)
         // Fallback to localStorage if Supabase fails
-        const saved = localStorage.getItem('ligdiData')
+        const saved = localStorage.getItem('companyData')
         if (saved) {
           const data = JSON.parse(saved)
           setCampagnes(data.campagnes || [])

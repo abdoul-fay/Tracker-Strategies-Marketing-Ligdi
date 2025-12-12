@@ -5,7 +5,7 @@ export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDark
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <h1>📊 Ligdi Marketing Tracker</h1>
+        <h1>📊 Marketing Tracker</h1>
       </div>
       <ul className="navbar-menu">
         <li>
