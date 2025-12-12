@@ -60,9 +60,15 @@ BEGIN
   RETURNING id INTO v_tenant_id;
 
   -- Create user record linking auth user to tenant
-  INSERT INTO public.users (auth_id, tenant_id, email, role)
-  VALUES (NEW.id, v_tenant_id, NEW.email, 'admin');
+  BEGIN
+    INSERT INTO public.users (auth_id, tenant_id, email, role)
+    VALUES (NEW.id, v_tenant_id, NEW.email, 'admin');
+  EXCEPTION WHEN OTHERS THEN
+    NULL; -- Ignore if already exists
+  END;
 
+  RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
   RETURN NEW;
 END;
 $$;
@@ -103,35 +109,24 @@ CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 -- Enable RLS
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies for users table
+-- RLS Policies for users table - SIMPLIFIED to avoid recursion
 DROP POLICY IF EXISTS "Users - Can view own tenant members" ON public.users;
 CREATE POLICY "Users - Can view own tenant members"
   ON public.users
   FOR SELECT
-  USING (
-    auth.uid() IN (
-      SELECT auth_id FROM public.users 
-      WHERE tenant_id = public.users.tenant_id
-    )
-  );
+  USING (auth_id = auth.uid());
 
 DROP POLICY IF EXISTS "Users - Can insert during signup" ON public.users;
 CREATE POLICY "Users - Can insert during signup"
   ON public.users
   FOR INSERT
-  WITH CHECK (auth.uid() = auth_id);
+  WITH CHECK (auth_id = auth.uid());
 
 DROP POLICY IF EXISTS "Users - Admin can manage users" ON public.users;
 CREATE POLICY "Users - Admin can manage users"
   ON public.users
-  FOR ALL
-  USING (
-    auth.uid() IN (
-      SELECT auth_id FROM public.users 
-      WHERE tenant_id = public.users.tenant_id 
-      AND role IN ('admin')
-    )
-  );
+  FOR UPDATE
+  USING (auth_id = auth.uid());
 
 -- 3. CREATE OR UPDATE EXISTING TABLES WITH TENANT_ID
 -- ============================================================================

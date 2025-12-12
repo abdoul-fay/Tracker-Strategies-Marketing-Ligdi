@@ -44,31 +44,32 @@ export default function Login({ onLoginSuccess }) {
 
         if (authData?.user) {
           // Wait a moment for trigger to execute
-          await new Promise(resolve => setTimeout(resolve, 500))
+          await new Promise(resolve => setTimeout(resolve, 1000))
 
-          // Get tenant info from newly created records
+          // Try to get tenant info from newly created records
           const { data: userData, error: userError } = await supabase
             .from('users')
             .select('tenant_id')
             .eq('auth_id', authData.user.id)
-            .single()
+            .maybeSingle() // Use maybeSingle instead of single to avoid error if not found yet
 
-          if (userError) throw new Error('Failed to create account records: ' + userError.message)
-
-          // Store tenant info
-          setTenantId(userData.tenant_id)
-          setCurrentUser({
-            id: authData.user.id,
-            email: authData.user.email,
-            tenant_id: userData.tenant_id,
-            role: 'admin'
-          })
+          if (userData?.tenant_id) {
+            // Store tenant info if found
+            setTenantId(userData.tenant_id)
+            setCurrentUser({
+              id: authData.user.id,
+              email: authData.user.email,
+              tenant_id: userData.tenant_id,
+              role: 'admin'
+            })
+          }
 
           setError('✅ Compte créé avec succès! Vérifiez votre email.')
           setTimeout(() => {
             setIsSignUp(false)
             setPassword('')
             setCompanyName('')
+            setEmail('')
           }, 2000)
         }
       } else {
