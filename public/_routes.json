@@ -5,7 +5,8 @@
   ],
   "exclude": [
     "/favicon.ico",
-    "/manifest.json",
+    "/index.html",
     "/assets/*"
   ]
 }
+
