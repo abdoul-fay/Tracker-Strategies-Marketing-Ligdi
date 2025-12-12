@@ -1,7 +1,7 @@
 import './Navbar.css'
 import NotificationBell from './NotificationBell'
 
-export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDarkMode }) {
+export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDarkMode, onLogout }) {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
@@ -146,6 +146,15 @@ export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDark
             title={isDark ? 'Mode clair' : 'Mode sombre'}
           >
             {isDark ? '☀️' : '🌙'}
+          </button>
+        </li>
+        <li>
+          <button 
+            className="nav-link logout-button"
+            onClick={onLogout}
+            title="Se déconnecter"
+          >
+            🚪 Déconnexion
           </button>
         </li>
       </ul>

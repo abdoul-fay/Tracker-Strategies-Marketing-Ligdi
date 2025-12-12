@@ -18,7 +18,9 @@ import Recommendations from './pages/Recommendations'
 import AmbassadeursCampagnes from './pages/AmbassadeursCampagnes'
 import Benchmarking from './pages/Benchmarking'
 import Predictions from './pages/Predictions'
-import { db } from './lib/supabase'
+import Login from './pages/Login'
+import { db, supabase } from './lib/supabase'
+import { getTenantId, getCurrentUser } from './lib/multiTenant'
 import { useDarkMode } from './hooks/useDarkMode'
 import './App.css'
 
@@ -28,20 +30,45 @@ export default function App() {
   const [ambassadeurs, setAmbassadeurs] = useState([])
   const [strategies, setStrategies] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [authChecked, setAuthChecked] = useState(false)
   const { isDark, toggleDarkMode } = useDarkMode()
 
-  // Charger les données de Supabase au démarrage
+  // Check authentication status on mount
   useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user && getTenantId()) {
+          setIsAuthenticated(true)
+        } else {
+          setIsAuthenticated(false)
+        }
+      } catch (err) {
+        console.error('Auth check error:', err)
+        setIsAuthenticated(false)
+      } finally {
+        setAuthChecked(true)
+      }
+    }
+    checkAuth()
+  }, [])
+
+  // Load data when authenticated
+  useEffect(() => {
+    if (!isAuthenticated) return
+
     const loadData = async () => {
       try {
         setLoading(true)
         console.log('🔄 Chargement des données de Supabase...')
+        // TODO: Filter by tenant_id when fully integrated
         const [campagnesData, ambassadeursData, strategiesData] = await Promise.all([
           db.getCampaigns(),
           db.getAmbassadors(),
           db.getStrategies()
         ])
-        console.log('✅ Campagnes chargées:', campagnesData.length, campagnesData)
+        console.log('✅ Campagnes chargées:', campagnesData.length)
         setCampagnes(campagnesData)
         setAmbassadeurs(ambassadeursData)
         setStrategies(strategiesData)
@@ -60,10 +87,12 @@ export default function App() {
       }
     }
     loadData()
-  }, [])
+  }, [isAuthenticated])
 
-  // Rafraîchir TOUTES les données toutes les 5 secondes (polling)
+  // Refresh data polling
   useEffect(() => {
+    if (!isAuthenticated) return
+
     const interval = setInterval(async () => {
       try {
         const [campagnesData, ambassadeursData, strategiesData] = await Promise.all([
@@ -80,7 +109,36 @@ export default function App() {
     }, 5000)
     
     return () => clearInterval(interval)
-  }, [])
+  }, [isAuthenticated])
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+      localStorage.removeItem('tenant_id')
+      localStorage.removeItem('current_user')
+      setIsAuthenticated(false)
+      setCurrentPage('home')
+    } catch (err) {
+      console.error('Logout error:', err)
+    }
+  }
+
+  // If not authenticated, show login page
+  if (!authChecked) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <p>⏳ Chargement...</p>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <NotificationProvider>
+        <Login onLoginSuccess={() => setIsAuthenticated(true)} />
+      </NotificationProvider>
+    )
+  }
 
   return (
     <NotificationProvider>
@@ -90,6 +148,7 @@ export default function App() {
           setCurrentPage={setCurrentPage}
           isDark={isDark}
           toggleDarkMode={toggleDarkMode}
+          onLogout={handleLogout}
         />
         <ToastContainer />
         <div className="container">

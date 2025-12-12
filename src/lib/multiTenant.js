@@ -247,15 +247,24 @@ export default function App() {
     
     setCampagnes(campaigns)
   }
-
-  return (
-    <div>
-      <Navbar user={user} tenantId={tenantId} />
-      {/* Pages avec données filtrées par tenant */}
-    </div>
-  )
 }
-*/
+
+/**
+ * USAGE IN REACT COMPONENTS:
+ * 
+ * import { getTenantId, buildTenantQuery } from '../lib/multiTenant'
+ * 
+ * useEffect(() => {
+ *   const tenantId = getTenantId()
+ *   const { data, error } = await supabase
+ *     .from('campaigns')
+ *     .select('*')
+ *     .eq('tenant_id', tenantId)
+ *     .order('created_at', { ascending: false })
+ *   
+ *   if (!error) setCampagnes(data)
+ * }, [])
+ */
 
 export default {
   getTenantId,

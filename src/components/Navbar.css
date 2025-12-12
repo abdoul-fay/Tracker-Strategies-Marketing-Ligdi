@@ -190,3 +190,23 @@
 .dark-mode-toggle:hover {
   transform: scale(1.2) rotate(20deg);
 }
+
+/* Logout Button */
+.logout-button {
+  background: rgba(239, 68, 68, 0.2);
+  border: 2px solid rgba(239, 68, 68, 0.5);
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+  background: rgba(239, 68, 68, 0.4);
+  border-color: rgba(239, 68, 68, 0.8);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+.logout-button.active {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.8);
+}
+
