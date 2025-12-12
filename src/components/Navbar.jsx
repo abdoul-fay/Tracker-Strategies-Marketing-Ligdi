@@ -26,6 +26,14 @@ export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDark
         </li>
         <li>
           <button 
+            className={`nav-link ${currentPage === 'recommendations' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('recommendations')}
+          >
+            🎯 Recommandations
+          </button>
+        </li>
+        <li>
+          <button 
             className={`nav-link ${currentPage === 'plan' ? 'active' : ''}`}
             onClick={() => setCurrentPage('plan')}
           >
