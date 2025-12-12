@@ -13,6 +13,7 @@ import ComparatifPerformance from './pages/ComparatifPerformance'
 import BudgetIntelligence from './pages/BudgetIntelligence'
 import AdvancedAnalytics from './pages/AdvancedAnalytics'
 import KPISettings from './pages/KPISettings'
+import Overview from './pages/Overview'
 import { db } from './lib/supabase'
 import { useDarkMode } from './hooks/useDarkMode'
 import './App.css'
@@ -210,6 +211,9 @@ export default function App() {
             )}
             {currentPage === 'kpisettings' && (
               <KPISettings />
+            )}
+            {currentPage === 'overview' && (
+              <Overview campagnes={campagnes} />
             )}
           </>
         )}

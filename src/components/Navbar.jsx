@@ -18,6 +18,14 @@ export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDark
         </li>
         <li>
           <button 
+            className={`nav-link ${currentPage === 'overview' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('overview')}
+          >
+            📊 Vue d'Ensemble
+          </button>
+        </li>
+        <li>
+          <button 
             className={`nav-link ${currentPage === 'plan' ? 'active' : ''}`}
             onClick={() => setCurrentPage('plan')}
           >
