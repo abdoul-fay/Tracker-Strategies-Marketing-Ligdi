@@ -93,7 +93,9 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
   // Grouper les stratégies par mois/année/semaine
   const stratByPeriod = {}
   strategies.forEach((s, idx) => {
-    const key = `${s.annee}-${String(s.mois + 1).padStart(2, '0')}`
+    // Utiliser directement s.mois (0-11) pour la clé
+    const monthKey = String(s.mois).padStart(2, '0')
+    const key = `${s.annee}-${monthKey}`
     if (!stratByPeriod[key]) {
       stratByPeriod[key] = {}
     }
@@ -118,11 +120,12 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
 
       <div className="months-container">
         {Object.entries(stratByPeriod).sort().reverse().map(([period, weeks]) => {
-          const [year, month] = period.split('-')
+          const [year, monthKey] = period.split('-')
+          const monthIndex = parseInt(monthKey) // monthKey est déjà 0-11
           return (
             <div key={period} className="month-card">
               <h2 className="month-title">
-                📆 {MOIS[parseInt(month) - 1]} {year}
+                📆 {MOIS[monthIndex]} {year}
               </h2>
               <div className="weeks-grid">
                 {[1, 2, 3, 4, 5].map(weekNum => (
@@ -192,7 +195,7 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
                       ) : (
                         <div className="empty-week">
                           <p>Aucune stratégie</p>
-                          <button className="btn-add-week" onClick={() => handleOpen(null, parseInt(month) - 1, weekNum)}>
+                          <button className="btn-add-week" onClick={() => handleOpen(null, monthIndex, weekNum)}>
                             + Ajouter
                           </button>
                         </div>

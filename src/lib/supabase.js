@@ -57,18 +57,26 @@ export const db = {
 
   // KPI Financiers
   async getKPIs() {
+    const tenantId = getTenantId()
+    if (!tenantId) {
+      console.warn('⚠️ No tenant_id found. User may not be authenticated.')
+      return []
+    }
     const { data, error } = await supabase
       .from('kpi_financiers')
       .select('*')
+      .eq('tenant_id', tenantId)
       .order('mois', { ascending: false })
     if (error) throw error
     return data || []
   },
 
   async addKPI(kpi) {
+    const tenantId = getTenantId()
+    if (!tenantId) throw new Error('No tenant_id. User not authenticated.')
     const { data, error } = await supabase
       .from('kpi_financiers')
-      .insert([kpi])
+      .insert([{ ...kpi, tenant_id: tenantId }])
       .select()
     if (error) throw error
     return data[0]

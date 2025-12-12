@@ -26,25 +26,59 @@ CREATE TABLE IF NOT EXISTS public.tenants (
 CREATE INDEX IF NOT EXISTS idx_tenants_owner_id ON tenants(owner_id);
 CREATE INDEX IF NOT EXISTS idx_tenants_company_name ON tenants(company_name);
 
--- Enable RLS on tenants table
-ALTER TABLE public.tenants ENABLE ROW LEVEL SECURITY;
+-- ============================================================================
+-- SIGNUP TRIGGER & FUNCTION - Auto-create tenant and user records
+-- ============================================================================
 
--- RLS Policies for tenants table
-CREATE POLICY "Tenants - Users can view their own tenant"
-  ON public.tenants
-  FOR SELECT
-  USING (owner_id = auth.uid());
+-- Function to handle new user signup
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_company_name TEXT;
+  v_tenant_id UUID;
+BEGIN
+  -- Get company name from user metadata
+  v_company_name := NEW.raw_user_meta_data->>'company_name';
+  
+  -- If no company name, use email prefix
+  IF v_company_name IS NULL OR v_company_name = '' THEN
+    v_company_name := split_part(NEW.email, '@', 1);
+  END IF;
+  
+  -- Ensure unique company name
+  IF EXISTS (SELECT 1 FROM public.tenants WHERE company_name = v_company_name) THEN
+    v_company_name := v_company_name || '_' || substring(NEW.id::text, 1, 8);
+  END IF;
 
-CREATE POLICY "Tenants - Users can update their own tenant"
-  ON public.tenants
-  FOR UPDATE
-  USING (owner_id = auth.uid())
-  WITH CHECK (owner_id = auth.uid());
+  -- Create tenant
+  INSERT INTO public.tenants (owner_id, company_name, subscription_tier)
+  VALUES (NEW.id, v_company_name, 'starter')
+  RETURNING id INTO v_tenant_id;
 
-CREATE POLICY "Tenants - Users can insert their own tenant"
-  ON public.tenants
-  FOR INSERT
-  WITH CHECK (owner_id = auth.uid());
+  -- Create user record linking auth user to tenant
+  INSERT INTO public.users (auth_id, tenant_id, email, role)
+  VALUES (NEW.id, v_tenant_id, NEW.email, 'admin');
+
+  RETURN NEW;
+END;
+$$;
+
+-- Trigger for new signups
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ============================================================================
+-- RLS POLICIES - Tenant & User Access Control
+-- ============================================================================
+
+-- TENANTS TABLE - NO RLS (handled by trigger function)
+ALTER TABLE public.tenants DISABLE ROW LEVEL SECURITY;
 
 -- 2. CREATE USERS TABLE (Track tenant members)
 -- ============================================================================
@@ -70,32 +104,53 @@ CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for users table
+DROP POLICY IF EXISTS "Users - Can view own tenant members" ON public.users;
 CREATE POLICY "Users - Can view own tenant members"
   ON public.users
   FOR SELECT
   USING (
-    tenant_id = (
-      SELECT tenant_id FROM public.users 
-      WHERE auth_id = auth.uid() 
-      LIMIT 1
+    auth.uid() IN (
+      SELECT auth_id FROM public.users 
+      WHERE tenant_id = public.users.tenant_id
     )
   );
 
-CREATE POLICY "Users - Admin can insert users"
+DROP POLICY IF EXISTS "Users - Can insert during signup" ON public.users;
+CREATE POLICY "Users - Can insert during signup"
   ON public.users
   FOR INSERT
-  WITH CHECK (
-    tenant_id IN (
-      SELECT tenant_id FROM public.users 
-      WHERE auth_id = auth.uid() 
-      AND role = 'admin'
+  WITH CHECK (auth.uid() = auth_id);
+
+DROP POLICY IF EXISTS "Users - Admin can manage users" ON public.users;
+CREATE POLICY "Users - Admin can manage users"
+  ON public.users
+  FOR ALL
+  USING (
+    auth.uid() IN (
+      SELECT auth_id FROM public.users 
+      WHERE tenant_id = public.users.tenant_id 
+      AND role IN ('admin')
     )
   );
 
--- 3. ADD TENANT_ID TO EXISTING TABLES
+-- 3. CREATE OR UPDATE EXISTING TABLES WITH TENANT_ID
 -- ============================================================================
 
--- Add tenant_id to campaigns table
+-- Create campaigns table if it doesn't exist
+CREATE TABLE IF NOT EXISTS public.campaigns (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  budget DECIMAL(12, 2),
+  start_date DATE,
+  end_date DATE,
+  status TEXT DEFAULT 'active',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Add tenant_id column if it doesn't exist
 ALTER TABLE IF EXISTS public.campaigns
   ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE;
 
@@ -120,7 +175,19 @@ CREATE POLICY "Campaigns - Isolate by tenant"
 
 -- ============================================================================
 
--- Add tenant_id to ambassadeurs table
+-- Create ambassadeurs table if it doesn't exist
+CREATE TABLE IF NOT EXISTS public.ambassadeurs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  status TEXT DEFAULT 'active',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Add tenant_id column if it doesn't exist
 ALTER TABLE IF EXISTS public.ambassadeurs
   ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE;
 
@@ -145,7 +212,59 @@ CREATE POLICY "Ambassadeurs - Isolate by tenant"
 
 -- ============================================================================
 
--- Add tenant_id to strategies table
+-- Create kpi_financiers table if it doesn't exist
+CREATE TABLE IF NOT EXISTS public.kpi_financiers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE,
+  mois INT,
+  annee INT,
+  revenue DECIMAL(12, 2),
+  expenses DECIMAL(12, 2),
+  roi DECIMAL(5, 2),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Add tenant_id column if it doesn't exist
+ALTER TABLE IF EXISTS public.kpi_financiers
+  ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE;
+
+-- Create index
+CREATE INDEX IF NOT EXISTS idx_kpi_financiers_tenant_id ON public.kpi_financiers(tenant_id);
+
+-- Enable RLS
+ALTER TABLE public.kpi_financiers ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policy
+DROP POLICY IF EXISTS "KPI Financiers - Isolate by tenant" ON public.kpi_financiers;
+CREATE POLICY "KPI Financiers - Isolate by tenant"
+  ON public.kpi_financiers
+  FOR ALL
+  USING (
+    tenant_id = (
+      SELECT tenant_id FROM public.users 
+      WHERE auth_id = auth.uid() 
+      LIMIT 1
+    )
+  );
+
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS public.strategies (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE,
+  campaign_id UUID REFERENCES public.campaigns(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  annee INT,
+  mois INT,
+  semaine INT,
+  budget DECIMAL(12, 2),
+  status TEXT DEFAULT 'draft',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Add tenant_id column if it doesn't exist
 ALTER TABLE IF EXISTS public.strategies
   ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE;
 
