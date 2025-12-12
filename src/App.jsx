@@ -15,6 +15,8 @@ import AdvancedAnalytics from './pages/AdvancedAnalytics'
 import KPISettings from './pages/KPISettings'
 import Overview from './pages/Overview'
 import Recommendations from './pages/Recommendations'
+import AmbassadeursCampagnes from './pages/AmbassadeursCampagnes'
+import Benchmarking from './pages/Benchmarking'
 import { db } from './lib/supabase'
 import { useDarkMode } from './hooks/useDarkMode'
 import './App.css'
@@ -219,7 +221,12 @@ export default function App() {
             {currentPage === 'recommendations' && (
               <Recommendations campagnes={campagnes} />
             )}
-          </>
+            {currentPage === 'ambassadorscampagnes' && (
+              <AmbassadeursCampagnes campagnes={campagnes} ambassadeurs={ambassadeurs} />
+            )}
+            {currentPage === 'benchmarking' && (
+              <Benchmarking campagnes={campagnes} />
+            )}
         )}
       </div>
     </div>

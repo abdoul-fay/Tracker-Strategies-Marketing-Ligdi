@@ -1,0 +1,313 @@
+.benchmarking {
+  width: 100%;
+}
+
+.bench-header {
+  margin-bottom: 30px;
+}
+
+.bench-header h1 {
+  font-size: 28px;
+  color: #6366f1;
+  margin: 0 0 8px 0;
+  font-weight: 800;
+}
+
+.bench-header p {
+  color: #999;
+  margin: 0;
+  font-size: 14px;
+}
+
+.bench-averages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.bench-avg-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(60, 60, 120, 0.08);
+  text-align: center;
+  border-top: 3px solid #6366f1;
+}
+
+.avg-label {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: 0.3px;
+}
+
+.avg-value {
+  font-size: 22px;
+  color: #6366f1;
+  font-weight: 800;
+}
+
+.bench-performers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.bench-section {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(60, 60, 120, 0.08);
+}
+
+.bench-section h2 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.top-section h2 {
+  color: #10b981;
+}
+
+.bottom-section h2 {
+  color: #ef4444;
+}
+
+.performers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.performer-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border-left: 3px solid #3b82f6;
+}
+
+.performer-card.top {
+  border-left-color: #10b981;
+  background: #f0fdf4;
+}
+
+.performer-card.bottom {
+  border-left-color: #ef4444;
+  background: #fef2f2;
+}
+
+.performer-rank {
+  background: #6366f1;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.performer-card.top .performer-rank {
+  background: #10b981;
+}
+
+.performer-card.bottom .performer-rank {
+  background: #ef4444;
+}
+
+.performer-info h4 {
+  margin: 0 0 4px 0;
+  color: #333;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.performer-metric {
+  margin: 2px 0;
+  color: #6366f1;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.performer-card.bottom .performer-metric {
+  color: #ef4444;
+}
+
+.performer-detail {
+  margin: 2px 0 0 0;
+  color: #999;
+  font-size: 11px;
+}
+
+.bench-charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.bench-chart {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(60, 60, 120, 0.08);
+}
+
+.bench-chart h3 {
+  margin: 0 0 16px 0;
+  color: #6366f1;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ranking-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ranking-controls h2 {
+  margin: 0;
+  color: #6366f1;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ranking-controls select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.ranking-controls select:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+.bench-table-container {
+  overflow-x: auto;
+}
+
+.bench-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.bench-table thead {
+  background: #f8fafc;
+}
+
+.bench-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 700;
+  color: #6366f1;
+  border-bottom: 2px solid #e0e7ff;
+}
+
+.bench-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e7ff;
+  color: #444;
+}
+
+.bench-table tbody tr.above-avg {
+  background: #f0fdf4;
+}
+
+.bench-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.rank-cell {
+  font-weight: 700;
+  color: #6366f1;
+}
+
+.roi-cell {
+  font-weight: 700;
+}
+
+.roi-cell.positive {
+  color: #10b981;
+}
+
+.roi-cell.negative {
+  color: #ef4444;
+}
+
+.bench-insights {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(60, 60, 120, 0.08);
+}
+
+.bench-insights h2 {
+  margin: 0 0 16px 0;
+  color: #6366f1;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.insights-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.insight {
+  background: #f8fafc;
+  border: 1px solid #e0e7ff;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.insight-icon {
+  font-size: 20px;
+  min-width: 20px;
+}
+
+.insight h4 {
+  margin: 0 0 4px 0;
+  color: #333;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.insight p {
+  margin: 0;
+  color: #999;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .bench-performers {
+    grid-template-columns: 1fr;
+  }
+
+  .bench-charts {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-list {
+    grid-template-columns: 1fr;
+  }
+}

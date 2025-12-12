@@ -112,6 +112,22 @@ export default function Navbar({ currentPage, setCurrentPage, isDark, toggleDark
             ⚙️ Paramètres KPI
           </button>
         </li>
+        <li>
+          <button 
+            className={`nav-link ${currentPage === 'ambassadorscampagnes' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('ambassadorscampagnes')}
+          >
+            👥 Ambassadors & Campagnes
+          </button>
+        </li>
+        <li>
+          <button 
+            className={`nav-link ${currentPage === 'benchmarking' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('benchmarking')}
+          >
+            🏆 Benchmarking
+          </button>
+        </li>
         <li style={{ marginLeft: 'auto' }}>
           <NotificationBell />
         </li>
