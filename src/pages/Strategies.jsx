@@ -4,6 +4,11 @@ import { useNotification } from '../contexts/NotificationContext'
 
 const SEMAINES = ['Semaine 1', 'Semaine 2', 'Semaine 3', 'Semaine 4', 'Semaine 5']
 const MOIS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre']
+const STATUS_OPTIONS = [
+  { value: 'planifie', label: '📋 Planifié', color: '#94a3b8' },
+  { value: 'en-cours', label: '🔄 En cours', color: '#3b82f6' },
+  { value: 'realise', label: '✅ Réalisé', color: '#10b981' }
+]
 
 export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
   const { success, error: showError } = useNotification()
@@ -19,6 +24,7 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
     objectifs: '',
     budget_total: 0,
     canaux: '',
+    status: 'planifie',
     versions: []
   })
 
@@ -39,6 +45,7 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
         objectifs: '',
         budget_total: 0,
         canaux: '',
+        status: 'planifie',
         versions: []
       })
       setEditId(null)
@@ -126,8 +133,17 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
                     <div className="week-content">
                       {weeks[weekNum] && weeks[weekNum].length > 0 ? (
                         weeks[weekNum].map((strat, sIdx) => (
-                          <div key={sIdx} className="strategy-item">
-                            <h4>{strat.titre}</h4>
+                          <div key={sIdx} className="strategy-item" style={{
+                            borderLeftColor: STATUS_OPTIONS.find(s => s.value === (strat.status || 'planifie'))?.color || '#94a3b8'
+                          }}>
+                            <div className="strategy-header">
+                              <h4>{strat.titre}</h4>
+                              <span className="status-badge" style={{
+                                backgroundColor: STATUS_OPTIONS.find(s => s.value === (strat.status || 'planifie'))?.color || '#94a3b8'
+                              }}>
+                                {STATUS_OPTIONS.find(s => s.value === (strat.status || 'planifie'))?.label}
+                              </span>
+                            </div>
                             <p className="description">{strat.description}</p>
                             <div className="strategy-details">
                               <span className="detail-badge">🎯 {strat.objectifs}</span>
@@ -218,6 +234,12 @@ export default function Strategies({ strategies, onAdd, onUpdate, onDelete }) {
                 <label>Semaine</label>
                 <select name="semaine" value={formData.semaine} onChange={handleChange}>
                   {SEMAINES.map((s, idx) => <option key={idx} value={idx + 1}>{s}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Statut</label>
+                <select name="status" value={formData.status} onChange={handleChange}>
+                  {STATUS_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
               </div>
             </div>
