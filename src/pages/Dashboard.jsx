@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
 } from 'recharts'
+import { db } from '../lib/supabase'
 import DashboardKPI from './DashboardKPI'
 import { generateAlerts, AlertContainer } from '../components/AlertSystem'
 import { exportCampagnesPDF } from '../lib/pdfExport'
@@ -24,6 +25,29 @@ const PERIODS = [
 
 export default function Dashboard({ campagnes }) {
   const [period, setPeriod] = useState('week');
+  const [kpiSettings, setKpiSettings] = useState({})
+
+  // Charger les paramètres KPI depuis Supabase
+  useEffect(() => {
+    const loadKPISettings = async () => {
+      try {
+        const settings = await db.getKPISettings()
+        if (settings) {
+          setKpiSettings({
+            roiTarget: settings.roi_target || 200,
+            reachTarget: settings.reach_target || 10000,
+            budgetMaxPerCampaign: settings.budget_max_per_campaign || 100000,
+            budgetMaxGlobal: settings.budget_max_global || 500000,
+            engagementTarget: settings.engagement_target || 5,
+            costPerResultMax: settings.cost_per_result_max || 50
+          })
+        }
+      } catch (err) {
+        console.error('❌ Erreur chargement KPI settings:', err)
+      }
+    }
+    loadKPISettings()
+  }, [])
   
   const stats = useMemo(() => {
     const byMonth = {}
@@ -69,7 +93,7 @@ export default function Dashboard({ campagnes }) {
     }
   }, [stats, campagnes])
 
-  const alerts = generateAlerts(campagnes)
+  const alerts = generateAlerts(campagnes, kpiSettings)
 
   return (
     <div className="dashboard">

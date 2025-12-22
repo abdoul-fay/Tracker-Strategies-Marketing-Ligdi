@@ -9,11 +9,21 @@
 /**
  * Calcule les seuils d'alerte adaptatifs basé sur l'historique
  * @param {Array} campagnes - Liste des campagnes historiques
- * @param {Object} kpiTargets - KPI cibles (ex: {roi: 300, reach: 50000, ...})
+ * @param {Object} kpiTargets - KPI cibles (ex: {roi: 300, reach: 50000, ...} ou {roiTarget: 300, reachTarget: 50000, ...})
  * @returns {Object} Seuils adaptatifs
  */
 export function calculateAdaptiveThresholds(campagnes = [], kpiTargets = {}) {
   console.log('🔍 calculateAdaptiveThresholds - Campagnes:', campagnes.length, campagnes)
+  
+  // Normaliser les noms de champs (Supabase ou JS)
+  const normalizeTargets = (targets) => ({
+    roi: targets.roiTarget || targets.roi_target || targets.roi || 0,
+    reach: targets.reachTarget || targets.reach_target || targets.reach || 0,
+    budgetPerCampaign: targets.budgetMaxPerCampaign || targets.budget_max_per_campaign || targets.budgetPerCampaign || 0,
+    budgetGlobal: targets.budgetMaxGlobal || targets.budget_max_global || targets.budgetGlobal || 0
+  })
+  
+  const normalizedTargets = normalizeTargets(kpiTargets)
   
   if (campagnes.length === 0) {
     console.log('❌ Aucune campagne, retour des seuils par défaut')
@@ -39,17 +49,17 @@ export function calculateAdaptiveThresholds(campagnes = [], kpiTargets = {}) {
   const globalThreshold = Math.max(maxBudget * campagnes.length * 0.7, avgBudget * campagnes.length * 1.3)
   
   const thresholds = {
-    // Budget: max observé + 15%, ou moyenne + 30% (le plus élevé)
-    budgetPerCampaign: budgetThreshold,
-    budgetGlobal: globalThreshold,
+    // Budget: utiliser les targets si disponibles, sinon utiliser l'historique
+    budgetPerCampaign: normalizedTargets.budgetPerCampaign || budgetThreshold,
+    budgetGlobal: normalizedTargets.budgetGlobal || globalThreshold,
     
     // ROI: basé sur l'objectif - 20% de tolérance
-    roiMin: (kpiTargets.roi || avgROI * 0.8) * 0.8,
-    roiTarget: kpiTargets.roi || avgROI,
+    roiMin: (normalizedTargets.roi || avgROI * 0.8) * 0.8,
+    roiTarget: normalizedTargets.roi || avgROI,
     
     // Reach: basé sur l'objectif - 15% de tolérance
-    reachMin: (kpiTargets.reach || avgReach * 0.85) * 0.85,
-    reachTarget: kpiTargets.reach || avgReach,
+    reachMin: (normalizedTargets.reach || avgReach * 0.85) * 0.85,
+    reachTarget: normalizedTargets.reach || avgReach,
     
     // Efficacité: coût par résultat
     costPerResultMax: avgBudget / Math.max(avgReach, 1) * 1.5,

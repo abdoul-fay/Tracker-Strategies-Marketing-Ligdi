@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts'
-import { supabase } from '../lib/supabase'
+import { db } from '../lib/supabase'
 import './DashboardKPI.css'
 
 // Formatteur de nombres: k, M, G seulement si >= 10 chiffres (1 milliard+)
@@ -18,27 +18,19 @@ export default function DashboardKPI() {
   const [kpiList, setKpiList] = useState([])
   const [loading, setLoading] = useState(true)
 
-  // Charger les KPI depuis Supabase
+  // Charger les KPI depuis Supabase via db wrapper avec isolation tenant
   useEffect(() => {
     const loadKPIs = async (showLoader = false) => {
       try {
         if (showLoader) setLoading(true)
-        const { data, error } = await supabase
-          .from('kpi_financiers')
-          .select('*')
-          .order('mois', { ascending: false })
-        
-        if (error) {
-          console.error('Erreur chargement KPI:', error)
-          // Fallback sur localStorage
-          const saved = localStorage.getItem('kpiFinanciers')
-          setKpiList(saved ? JSON.parse(saved) : [])
-        } else {
-          setKpiList(data || [])
-          localStorage.setItem('kpiFinanciers', JSON.stringify(data || []))
-        }
+        const data = await db.getKPIs()
+        setKpiList(data || [])
+        localStorage.setItem('kpiFinanciers', JSON.stringify(data || []))
       } catch (err) {
-        console.error('Erreur:', err)
+        console.error('❌ Erreur chargement KPI:', err)
+        // Fallback sur localStorage
+        const saved = localStorage.getItem('kpiFinanciers')
+        setKpiList(saved ? JSON.parse(saved) : [])
       } finally {
         if (showLoader) setLoading(false)
       }

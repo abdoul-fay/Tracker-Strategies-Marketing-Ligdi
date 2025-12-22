@@ -145,9 +145,28 @@ CREATE TABLE IF NOT EXISTS public.campaigns (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Add tenant_id column if it doesn't exist
+-- Add tenant_id column if it doesn't exist (for existing tables)
 ALTER TABLE IF EXISTS public.campaigns
   ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE;
+
+-- Ensure all required columns exist
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS name TEXT;
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS budget DECIMAL(12, 2);
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS start_date DATE;
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS end_date DATE;
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active';
+-- Additional columns required by the form
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS action TEXT;
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS canal TEXT;
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS budget_reel DECIMAL(12, 2);
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS kpi_cible TEXT;
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS kpi_reel TEXT;
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS roi DECIMAL(12, 2);
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS etat TEXT;
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS responsable TEXT;
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS date_start DATE;
+ALTER TABLE IF EXISTS public.campaigns ADD COLUMN IF NOT EXISTS date_end DATE;
 
 -- Create index on tenant_id
 CREATE INDEX IF NOT EXISTS idx_campaigns_tenant_id ON public.campaigns(tenant_id);
@@ -185,6 +204,18 @@ CREATE TABLE IF NOT EXISTS public.ambassadeurs (
 -- Add tenant_id column if it doesn't exist
 ALTER TABLE IF EXISTS public.ambassadeurs
   ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE;
+
+-- Ensure all required columns exist
+ALTER TABLE IF EXISTS public.ambassadeurs ADD COLUMN IF NOT EXISTS name TEXT;
+ALTER TABLE IF EXISTS public.ambassadeurs ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE IF EXISTS public.ambassadeurs ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE IF EXISTS public.ambassadeurs ADD COLUMN IF NOT EXISTS ambassadeur TEXT;
+ALTER TABLE IF EXISTS public.ambassadeurs ADD COLUMN IF NOT EXISTS canal TEXT;
+ALTER TABLE IF EXISTS public.ambassadeurs ADD COLUMN IF NOT EXISTS filleuls_recrutes INT DEFAULT 0;
+ALTER TABLE IF EXISTS public.ambassadeurs ADD COLUMN IF NOT EXISTS utilisateurs_actifs INT DEFAULT 0;
+ALTER TABLE IF EXISTS public.ambassadeurs ADD COLUMN IF NOT EXISTS recompense_total DECIMAL(12,2) DEFAULT 0;
+ALTER TABLE IF EXISTS public.ambassadeurs ADD COLUMN IF NOT EXISTS commentaires TEXT;
+ALTER TABLE IF EXISTS public.ambassadeurs ADD COLUMN IF NOT EXISTS status TEXT;
 
 -- Create index
 CREATE INDEX IF NOT EXISTS idx_ambassadeurs_tenant_id ON public.ambassadeurs(tenant_id);
@@ -262,6 +293,16 @@ CREATE TABLE IF NOT EXISTS public.strategies (
 -- Add tenant_id column if it doesn't exist
 ALTER TABLE IF EXISTS public.strategies
   ADD COLUMN IF NOT EXISTS tenant_id UUID REFERENCES public.tenants(id) ON DELETE CASCADE;
+
+-- Ensure all required columns exist
+ALTER TABLE IF EXISTS public.strategies ADD COLUMN IF NOT EXISTS title TEXT;
+ALTER TABLE IF EXISTS public.strategies ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE IF EXISTS public.strategies ADD COLUMN IF NOT EXISTS annee INT;
+ALTER TABLE IF EXISTS public.strategies ADD COLUMN IF NOT EXISTS mois INT;
+ALTER TABLE IF EXISTS public.strategies ADD COLUMN IF NOT EXISTS semaine INT;
+ALTER TABLE IF EXISTS public.strategies ADD COLUMN IF NOT EXISTS budget DECIMAL(12, 2);
+ALTER TABLE IF EXISTS public.strategies ADD COLUMN IF NOT EXISTS budget_total DECIMAL(12, 2);
+ALTER TABLE IF EXISTS public.strategies ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'draft';
 
 -- Create index
 CREATE INDEX IF NOT EXISTS idx_strategies_tenant_id ON public.strategies(tenant_id);

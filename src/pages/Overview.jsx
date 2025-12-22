@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { db } from '../lib/supabase'
 import { generateAlerts, AlertContainer } from '../components/AlertSystem'
 import './Overview.css'
 
@@ -13,6 +14,29 @@ const formatNumber = (num) => {
 
 export default function Overview({ campagnes = [] }) {
   const [filterCanal, setFilterCanal] = useState('tous')
+  const [kpiSettings, setKpiSettings] = useState({})
+
+  // Charger les paramètres KPI depuis Supabase
+  useEffect(() => {
+    const loadKPISettings = async () => {
+      try {
+        const settings = await db.getKPISettings()
+        if (settings) {
+          setKpiSettings({
+            roiTarget: settings.roi_target || 200,
+            reachTarget: settings.reach_target || 10000,
+            budgetMaxPerCampaign: settings.budget_max_per_campaign || 100000,
+            budgetMaxGlobal: settings.budget_max_global || 500000,
+            engagementTarget: settings.engagement_target || 5,
+            costPerResultMax: settings.cost_per_result_max || 50
+          })
+        }
+      } catch (err) {
+        console.error('❌ Erreur chargement KPI settings:', err)
+      }
+    }
+    loadKPISettings()
+  }, [])
 
   const stats = useMemo(() => {
     const filtered = filterCanal === 'tous' 
@@ -76,13 +100,15 @@ export default function Overview({ campagnes = [] }) {
   })
 
   const kpiTargets = useMemo(() => {
-    try {
-      const saved = localStorage.getItem('kpiSettings')
-      return saved ? JSON.parse(saved) : {}
-    } catch {
-      return {}
+    return {
+      roiTarget: kpiSettings.roiTarget || 200,
+      reachTarget: kpiSettings.reachTarget || 10000,
+      budgetMaxPerCampaign: kpiSettings.budgetMaxPerCampaign || 100000,
+      budgetMaxGlobal: kpiSettings.budgetMaxGlobal || 500000,
+      engagementTarget: kpiSettings.engagementTarget || 5,
+      costPerResultMax: kpiSettings.costPerResultMax || 50
     }
-  }, [])
+  }, [kpiSettings])
 
   const cibleVsReel = useMemo(() => {
     try {
@@ -101,7 +127,7 @@ export default function Overview({ campagnes = [] }) {
     }
   }, [])
 
-  const alerts = generateAlerts(campagnes)
+  const alerts = generateAlerts(campagnes, kpiSettings)
   const COLORS = ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
 
   return (

@@ -40,15 +40,19 @@ export function generateRecommendations(campagnes = [], kpiTargets = {}) {
   }
 
   // 2. Recommandation ROI
-  const targetROI = kpiTargets.roi || 100
-  if (avgROI < targetROI * 0.5) {
+  const targetROI = kpiTargets.roiTarget || kpiTargets.roi || 100
+  // Vérifier si ROI est en décimal (0-1) ou en pourcentage (0-100)
+  const normalizedAvgROI = avgROI > 100 ? avgROI : avgROI * 100
+  const normalizedTargetROI = targetROI > 100 ? targetROI : targetROI * 100
+  
+  if (normalizedAvgROI < normalizedTargetROI * 0.5) {
     recommendations.push({
       type: 'roi_low',
       severity: 'high',
       icon: '📉',
       title: 'ROI très faible',
       action: 'Analyez et optimisez vos stratégies',
-      details: `Votre ROI moyen (${avgROI.toFixed(1)}%) est loin de la cible (${targetROI}%)`,
+      details: `Votre ROI moyen (${normalizedAvgROI.toFixed(1)}%) est loin de la cible (${normalizedTargetROI.toFixed(1)}%)`,
       metric: 'roi'
     })
   }
@@ -73,24 +77,32 @@ export function generateRecommendations(campagnes = [], kpiTargets = {}) {
   let worstROI = Infinity
 
   Object.entries(byCanal).forEach(([canal, data]) => {
-    const roi = data.roi / data.count
-    if (roi > bestROI) {
-      bestROI = roi
+    const roi = data.count > 0 ? data.roi / data.count : 0
+    // Normaliser si ROI est en décimal
+    const normalizedRoi = roi > 100 ? roi : roi * 100
+    
+    if (normalizedRoi > bestROI) {
+      bestROI = normalizedRoi
       bestCanal = { canal, roi: bestROI.toFixed(1) }
     }
-    if (roi < worstROI) {
-      worstROI = roi
+    if (normalizedRoi > 0 && normalizedRoi < worstROI) {
+      worstROI = normalizedRoi
       worstCanal = { canal, roi: worstROI.toFixed(1) }
     }
   })
 
-  if (bestCanal && worstCanal && bestROI > worstROI * 2) {
+  // Éviter la division par zéro et vérifier que worstROI > 0
+  if (bestCanal && worstCanal && worstROI > 0 && bestROI > worstROI * 2) {
+    const ratio = (bestROI / worstROI).toFixed(1)
+    // Éviter "Infinityx" - vérifier si ratio est valide
+    const ratioText = isFinite(ratio) && ratio !== 'Infinity' ? ratio : 'beaucoup'
+    
     recommendations.push({
       type: 'channel_imbalance',
       severity: 'high',
       icon: '🎯',
       title: `Concentrez sur ${bestCanal.canal}`,
-      action: `${bestCanal.canal} performe ${(bestROI / worstROI).toFixed(1)}x mieux`,
+      action: `${bestCanal.canal} performe ${ratioText}x mieux`,
       details: `${bestCanal.canal}: ${bestCanal.roi}% vs ${worstCanal.canal}: ${worstCanal.roi}%`,
       metric: 'channel'
     })
@@ -117,13 +129,17 @@ export function generateRecommendations(campagnes = [], kpiTargets = {}) {
     .slice(0, 3)
 
   lowPerformers.forEach(camp => {
+    const campName = camp.name || camp.nom || 'Campagne sans nom'
+    const campROI = camp.roi > 100 ? camp.roi : camp.roi * 100
+    const displayAvgROI = normalizedAvgROI > 100 ? normalizedAvgROI : normalizedAvgROI * 100
+    
     recommendations.push({
       type: 'campaign_underperforming',
       severity: 'medium',
       icon: '⚠️',
-      title: `${camp.nom} performe mal`,
+      title: `${campName} performe mal`,
       action: 'Optimisez cette campagne ou arrêtez-la',
-      details: `ROI: ${camp.roi}% (vs moyenne ${avgROI.toFixed(1)}%)`,
+      details: `ROI: ${campROI.toFixed(1)}% (vs moyenne ${displayAvgROI.toFixed(1)}%)`,
       metric: 'campaign',
       campaignId: camp.id
     })
@@ -134,11 +150,12 @@ export function generateRecommendations(campagnes = [], kpiTargets = {}) {
     if (c.budget && c.reach && c.reach > 0) {
       const coutParUtil = c.budget / c.reach
       if (coutParUtil > 100) { // Plus de 100 FCFA par utilisateur
+        const campName = c.name || c.nom || 'Campagne sans nom'
         recommendations.push({
           type: 'high_cost_per_user',
           severity: 'medium',
           icon: '💰',
-          title: `${c.nom} coûte trop cher par utilisateur`,
+          title: `${campName} coûte trop cher par utilisateur`,
           action: 'Réduisez le coût ou augmentez la portée',
           details: `${coutParUtil.toFixed(0)} FCFA par utilisateur`,
           metric: 'efficiency'

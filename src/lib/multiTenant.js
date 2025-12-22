@@ -14,11 +14,23 @@
 
 export const getTenantId = () => {
   // Récupérer l'ID tenant depuis localStorage (après login)
-  return localStorage.getItem('tenant_id')
+  const tenantId = localStorage.getItem('tenant_id')
+  if (tenantId) {
+    console.log('✅ tenant_id récupéré du localStorage:', tenantId)
+  } else {
+    console.warn('⚠️ Aucun tenant_id trouvé. L\'utilisateur doit être authentifié.')
+  }
+  return tenantId
 }
 
 export const setTenantId = (tenantId) => {
+  if (!tenantId) {
+    console.error('❌ Impossible de stocker tenant_id invalide:', tenantId)
+    return false
+  }
+  console.log('💾 Stockage tenant_id:', tenantId)
   localStorage.setItem('tenant_id', tenantId)
+  return true
 }
 
 export const getCurrentUser = () => {
@@ -28,7 +40,65 @@ export const getCurrentUser = () => {
 }
 
 export const setCurrentUser = (user) => {
+  if (!user || !user.tenant_id) {
+    console.error('❌ Impossible de stocker utilisateur sans tenant_id:', user)
+    return false
+  }
+  console.log('💾 Stockage utilisateur avec tenant_id:', user.tenant_id)
   localStorage.setItem('current_user', JSON.stringify(user))
+  return true
+}
+
+/**
+ * Récupère ou initialise le tenant_id depuis la session Supabase
+ * IMPORTANT: Appeler après chaque authentification
+ */
+export const initializeTenantIdFromSession = async (supabaseClient) => {
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession()
+    
+    if (!session?.user) {
+      console.warn('⚠️ Pas de session active')
+      return null
+    }
+
+    const userId = session.user.id
+    const email = session.user.email
+    
+    console.log('🔍 Recherche du tenant pour l\'utilisateur:', email)
+
+    // Récupérer le tenant_id associé à l'utilisateur
+    const { data: userData, error } = await supabaseClient
+      .from('users')
+      .select('tenant_id, role')
+      .eq('auth_id', userId)
+      .maybeSingle()
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('❌ Erreur lors de la récupération du tenant:', error)
+      throw error
+    }
+
+    if (userData?.tenant_id) {
+      console.log('✅ Tenant trouvé:', userData.tenant_id)
+      setTenantId(userData.tenant_id)
+      
+      setCurrentUser({
+        id: userId,
+        email: email,
+        tenant_id: userData.tenant_id,
+        role: userData.role || 'user'
+      })
+      
+      return userData.tenant_id
+    } else {
+      console.warn('⚠️ Aucun tenant trouvé pour cet utilisateur')
+      return null
+    }
+  } catch (err) {
+    console.error('❌ Erreur dans initializeTenantIdFromSession:', err)
+    return null
+  }
 }
 
 // 2. REQUÊTES FILTRÉES PAR TENANT

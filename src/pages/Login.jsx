@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { setTenantId, setCurrentUser } from '../lib/multiTenant'
+import { setTenantId, setCurrentUser, initializeTenantIdFromSession } from '../lib/multiTenant'
 import '../styles/Login.css'
 
 export default function Login({ onLoginSuccess }) {
@@ -12,11 +12,16 @@ export default function Login({ onLoginSuccess }) {
   const [companyName, setCompanyName] = useState('')
 
   useEffect(() => {
-    // Check if already logged in
+    // Check if already logged in and initialize tenant
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) {
-        onLoginSuccess()
+        console.log('👤 Session trouvée, initialisation du tenant...')
+        const tenantId = await initializeTenantIdFromSession(supabase)
+        if (tenantId) {
+          console.log('✅ Tenant initialisé, redirection...')
+          onLoginSuccess()
+        }
       }
     }
     checkAuth()
@@ -43,37 +48,32 @@ export default function Login({ onLoginSuccess }) {
         if (authError) throw authError
 
         if (authData?.user) {
-          // Wait a moment for trigger to execute
-          await new Promise(resolve => setTimeout(resolve, 1000))
+          console.log('📝 Nouveau compte créé:', authData.user.email)
+          
+          // Wait longer for trigger to execute and create tenant + user records
+          console.log('⏳ Attente de la création du tenant...')
+          await new Promise(resolve => setTimeout(resolve, 2000))
 
-          // Try to get tenant info from newly created records
-          const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('tenant_id')
-            .eq('auth_id', authData.user.id)
-            .maybeSingle() // Use maybeSingle instead of single to avoid error if not found yet
-
-          if (userData?.tenant_id) {
-            // Store tenant info if found
-            setTenantId(userData.tenant_id)
-            setCurrentUser({
-              id: authData.user.id,
-              email: authData.user.email,
-              tenant_id: userData.tenant_id,
-              role: 'admin'
-            })
+          // Initialize tenant from session (this will retry if needed)
+          const tenantId = await initializeTenantIdFromSession(supabase)
+          
+          if (tenantId) {
+            console.log('✅ Tenant créé avec succès:', tenantId)
+            setError('✅ Compte créé avec succès! Vérifiez votre email.')
+            setTimeout(() => {
+              setIsSignUp(false)
+              setPassword('')
+              setCompanyName('')
+              setEmail('')
+            }, 2000)
+          } else {
+            console.warn('⚠️ Le tenant n\'a pas pu être créé. Essayez de vous connecter.')
+            setError('⚠️ Le tenant n\'a pas pu être créé. Réessayez dans quelques secondes.')
           }
-
-          setError('✅ Compte créé avec succès! Vérifiez votre email.')
-          setTimeout(() => {
-            setIsSignUp(false)
-            setPassword('')
-            setCompanyName('')
-            setEmail('')
-          }, 2000)
         }
       } else {
         // Sign in: Get existing account and tenant
+        console.log('🔐 Connexion avec:', email)
         const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
           email,
           password
@@ -82,22 +82,14 @@ export default function Login({ onLoginSuccess }) {
         if (authError) throw authError
 
         if (authData?.user) {
-          // Get user's tenant
-          const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('tenant_id, role')
-            .eq('auth_id', authData.user.id)
-            .single()
-
-          if (userError) throw new Error('Compte non trouvé. Veuillez créer un compte d\'abord.')
-
-          setTenantId(userData.tenant_id)
-          setCurrentUser({
-            id: authData.user.id,
-            email: authData.user.email,
-            tenant_id: userData.tenant_id,
-            role: userData.role || 'user'
-          })
+          console.log('✅ Authentification réussie:', authData.user.email)
+          
+          // Initialize tenant from session
+          const tenantId = await initializeTenantIdFromSession(supabase)
+          
+          if (!tenantId) {
+            throw new Error('Compte non trouvé. Veuillez créer un compte d\'abord.')
+          }
 
           // Success - trigger app reload with auth context
           onLoginSuccess()

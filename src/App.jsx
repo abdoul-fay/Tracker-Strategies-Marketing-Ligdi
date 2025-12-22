@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import Navbar from './components/Navbar'
+import Sidebar from './components/Sidebar'
 import ToastContainer from './components/Toast'
 import { NotificationProvider } from './contexts/NotificationContext'
 import Home from './pages/Home'
@@ -18,6 +18,7 @@ import Recommendations from './pages/Recommendations'
 import AmbassadeursCampagnes from './pages/AmbassadeursCampagnes'
 import Benchmarking from './pages/Benchmarking'
 import Predictions from './pages/Predictions'
+import AnalyseUtilisateurs from './pages/AnalyseUtilisateurs'
 import Login from './pages/Login'
 import { db, supabase } from './lib/supabase'
 import { getTenantId, getCurrentUser } from './lib/multiTenant'
@@ -143,7 +144,7 @@ export default function App() {
   return (
     <NotificationProvider>
       <div className="app">
-        <Navbar 
+        <Sidebar 
           currentPage={currentPage} 
           setCurrentPage={setCurrentPage}
           isDark={isDark}
@@ -151,7 +152,7 @@ export default function App() {
           onLogout={handleLogout}
         />
         <ToastContainer />
-        <div className="container">
+        <div className="app-content">
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
             Chargement des données...
@@ -289,6 +290,9 @@ export default function App() {
             )}
             {currentPage === 'predictions' && (
               <Predictions campagnes={campagnes} />
+            )}
+            {currentPage === 'analyse' && (
+              <AnalyseUtilisateurs campagnes={campagnes} />
             )}
           </>
         )}

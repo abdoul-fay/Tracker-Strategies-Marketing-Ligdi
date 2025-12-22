@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { db } from '../lib/supabase'
+import { useNotification } from '../contexts/NotificationContext'
 import './KPISettings.css'
 
 export default function KPISettings() {
+  const { success, error: showError } = useNotification()
   const [settings, setSettings] = useState({
     roiTarget: 200,
     reachTarget: 10000,
@@ -12,19 +14,33 @@ export default function KPISettings() {
     costPerResultMax: 50
   })
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [saved, setSaved] = useState(false)
 
-  // Charger les paramètres sauvegardés
+  // Charger les paramètres depuis Supabase
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const saved = localStorage.getItem('kpiSettings')
-        if (saved) {
-          setSettings(JSON.parse(saved))
+        setLoading(true)
+        const dbSettings = await db.getKPISettings()
+        if (dbSettings) {
+          setSettings({
+            roiTarget: dbSettings.roi_target || 200,
+            reachTarget: dbSettings.reach_target || 10000,
+            budgetMaxPerCampaign: dbSettings.budget_max_per_campaign || 100000,
+            budgetMaxGlobal: dbSettings.budget_max_global || 500000,
+            engagementTarget: dbSettings.engagement_target || 5,
+            costPerResultMax: dbSettings.cost_per_result_max || 50
+          })
+          console.log('✅ Paramètres KPI chargés depuis Supabase')
+        } else {
+          console.log('ℹ️ Aucun paramètre KPI trouvé, utilisation des defaults')
         }
       } catch (err) {
-        console.error('Erreur chargement paramètres:', err)
+        console.error('❌ Erreur chargement paramètres:', err)
+        showError('Erreur: ' + err.message)
+      } finally {
+        setLoading(false)
       }
     }
     loadSettings()
@@ -40,11 +56,18 @@ export default function KPISettings() {
   const handleSave = async () => {
     try {
       setLoading(true)
-      localStorage.setItem('kpiSettings', JSON.stringify(settings))
+      console.log('💾 Sauvegarde paramètres KPI:', settings)
+      await db.setKPISettings(settings)
+      
+      // Déclencher un événement personnalisé pour que Home recharge les alertes
+      window.dispatchEvent(new Event('kpiSettingsChanged'))
+      
+      success('Paramètres KPI enregistrés avec succès')
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch (err) {
-      console.error('Erreur sauvegarde:', err)
+      console.error('❌ Erreur sauvegarde:', err)
+      showError('Erreur: ' + err.message)
     } finally {
       setLoading(false)
     }

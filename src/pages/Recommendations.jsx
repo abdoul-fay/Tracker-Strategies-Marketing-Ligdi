@@ -1,16 +1,36 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
+import { db } from '../lib/supabase'
 import { generateRecommendations, formatRecommendation } from '../lib/recommendations'
 import './Recommendations.css'
 
 export default function Recommendations({ campagnes = [] }) {
-  const kpiTargets = useMemo(() => {
-    try {
-      const saved = localStorage.getItem('kpiSettings')
-      return saved ? JSON.parse(saved) : {}
-    } catch {
-      return {}
+  const [kpiSettings, setKpiSettings] = useState({})
+
+  // Charger les paramètres KPI depuis Supabase
+  useEffect(() => {
+    const loadKPISettings = async () => {
+      try {
+        const settings = await db.getKPISettings()
+        if (settings) {
+          setKpiSettings({
+            roiTarget: settings.roi_target || 200,
+            reachTarget: settings.reach_target || 10000,
+            budgetMaxPerCampaign: settings.budget_max_per_campaign || 100000,
+            budgetMaxGlobal: settings.budget_max_global || 500000,
+            engagementTarget: settings.engagement_target || 5,
+            costPerResultMax: settings.cost_per_result_max || 50
+          })
+        }
+      } catch (err) {
+        console.error('❌ Erreur chargement KPI settings:', err)
+      }
     }
+    loadKPISettings()
   }, [])
+
+  const kpiTargets = useMemo(() => {
+    return kpiSettings
+  }, [kpiSettings])
 
   const recommendations = useMemo(() => {
     const recs = generateRecommendations(campagnes, kpiTargets)

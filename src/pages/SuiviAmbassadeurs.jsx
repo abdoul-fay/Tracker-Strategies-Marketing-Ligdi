@@ -7,6 +7,8 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
   const [showModal, setShowModal] = useState(false)
   const [editId, setEditId] = useState(null)
   const [formData, setFormData] = useState({
+    name: '',
+    nom: '',
     ambassadeur: '',
     canal: 'Étudiant',
     filleuls_recrutes: 0,
@@ -24,6 +26,8 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
       }
     } else {
       setFormData({
+        name: '',
+        nom: '',
         ambassadeur: '',
         canal: 'Étudiant',
         filleuls_recrutes: 0,
@@ -54,7 +58,11 @@ export default function SuiviAmbassadeurs({ ambassadeurs, onAdd, onUpdate, onDel
     const { name, value } = e.target
     setFormData({
       ...formData,
-      [name]: name !== 'commentaires' && name !== 'ambassadeur' && name !== 'canal' ? parseInt(value) || 0 : value
+      [name]: name !== 'commentaires' && name !== 'ambassadeur' && name !== 'canal' && name !== 'name' && name !== 'nom' ? parseInt(value) || 0 : value,
+      // Synchroniser name/nom/ambassadeur (utiliser le même champ)
+      ...(name === 'ambassadeur' && { name: value, nom: value }),
+      ...(name === 'name' && { ambassadeur: value, nom: value }),
+      ...(name === 'nom' && { ambassadeur: value, name: value })
     })
   }
 

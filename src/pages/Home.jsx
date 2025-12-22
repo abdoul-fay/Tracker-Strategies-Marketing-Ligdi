@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { supabase } from '../lib/supabase';
+import { db } from '../lib/supabase';
 import { generateAlerts, AlertContainer } from '../components/AlertSystem';
 import { exportCampagnesPDF, exportKPIPDF } from '../lib/pdfExport';
 import './Home.css';
@@ -16,6 +16,8 @@ const formatNumber = (num) => {
 
 export default function Home({ campagnes }) {
   const [kpiList, setKpiList] = useState([])
+  const [kpiSettings, setKpiSettings] = useState(null)
+  const [refresh, setRefresh] = useState(0) // État pour forcer rechargement des alertes
   const [stats, setStats] = useState({
     totalBudget: 0,
     totalReal: 0,
@@ -25,33 +27,69 @@ export default function Home({ campagnes }) {
     kpiCount: 0
   });
 
-  // Charger les KPI depuis Supabase
+  // Charger les KPI depuis Supabase via db wrapper avec isolation tenant
   useEffect(() => {
     const loadKPIs = async (showLoader = false) => {
       try {
-        if (showLoader) setLoading(true)
-        const { data, error } = await supabase
-          .from('kpi_financiers')
-          .select('*')
-          .order('mois', { ascending: false })
-        
-        if (error) {
-          console.error('Erreur chargement KPI:', error)
-          const saved = localStorage.getItem('kpiFinanciers')
-          setKpiList(saved ? JSON.parse(saved) : [])
-        } else {
-          setKpiList(data || [])
-        }
+        const data = await db.getKPIs()
+        setKpiList(data || [])
       } catch (err) {
-        console.error('Erreur:', err)
-      } finally {
-        if (showLoader) setLoading(false)
+        console.error('❌ Erreur chargement KPI:', err)
+        const saved = localStorage.getItem('kpiFinanciers')
+        setKpiList(saved ? JSON.parse(saved) : [])
       }
     }
     
     loadKPIs(true)
     const interval = setInterval(() => loadKPIs(false), 5000)
     return () => clearInterval(interval)
+  }, [])
+
+  // Charger les paramètres KPI depuis Supabase
+  useEffect(() => {
+    const loadKPISettings = async () => {
+      try {
+        console.log('⚙️ Chargement paramètres KPI...')
+        const settings = await db.getKPISettings()
+        setKpiSettings(settings)
+        console.log('✅ Paramètres KPI chargés:', settings)
+      } catch (err) {
+        console.error('❌ Erreur chargement KPI settings:', err)
+      }
+    }
+    
+    loadKPISettings()
+    const interval = setInterval(() => loadKPISettings(), 10000) // Recharger tous les 10s
+    return () => clearInterval(interval)
+  }, [])
+
+  // Écouter les changements de paramètres KPI
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'kpiSettings') {
+        console.log('🔄 Paramètres KPI mis à jour, recalcul des alertes...')
+        setRefresh(prev => prev + 1)
+      }
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Aussi écouter les changements du même onglet (utiliser un événement personnalisé)
+    const handleCustomEvent = () => {
+      console.log('🔄 Paramètres KPI mis à jour (événement custom), recalcul des alertes...')
+      // Recharger les paramètres depuis Supabase
+      db.getKPISettings().then(settings => {
+        setKpiSettings(settings)
+        setRefresh(prev => prev + 1)
+      })
+    }
+    
+    window.addEventListener('kpiSettingsChanged', handleCustomEvent)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('kpiSettingsChanged', handleCustomEvent)
+    }
   }, [])
 
   // Calculer les stats à partir des campagnes du Plan Marketing
@@ -77,7 +115,7 @@ export default function Home({ campagnes }) {
       campagnesCount: campagnes.length,
       kpiCount: kpiList.length
     });
-  }, [campagnes, kpiList])
+  }, [campagnes, kpiList, refresh])
 
   // Données pour graphiques mini
   const byMonth = {};
@@ -101,7 +139,7 @@ export default function Home({ campagnes }) {
     }));
 
   const latestKPI = kpiList.length > 0 ? kpiList[0] : null;
-  const alerts = generateAlerts(campagnes);
+  const alerts = generateAlerts(campagnes, kpiSettings);
 
   const COLORS = ['#6366f1', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 

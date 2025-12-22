@@ -62,23 +62,16 @@ function KPIFinanciers() {
   const loadKPIs = async (showLoader = false) => {
     try {
       if (showLoader) setLoading(true);
-      const { data, error } = await supabase
-        .from('kpi_financiers')
-        .select('*')
-        .order('mois', { ascending: false });
-      
-      if (error) {
-        console.error('Erreur chargement KPI:', error);
-        // Fallback sur localStorage
-        const saved = localStorage.getItem('kpiFinanciers');
-        setKpiList(saved ? JSON.parse(saved) : []);
-      } else {
-        setKpiList(data || []);
-        // Garder localStorage comme backup
-        localStorage.setItem('kpiFinanciers', JSON.stringify(data || []));
-      }
+      const data = await db.getKPIs();
+      setKpiList(data || []);
+      // Garder localStorage comme backup
+      localStorage.setItem('kpiFinanciers', JSON.stringify(data || []));
     } catch (err) {
-      console.error('Erreur Supabase:', err);
+      console.error('❌ Erreur chargement KPI:', err);
+      showError('Erreur lors du chargement des KPIs');
+      // Fallback sur localStorage
+      const saved = localStorage.getItem('kpiFinanciers');
+      setKpiList(saved ? JSON.parse(saved) : []);
     } finally {
       if (showLoader) setLoading(false);
     }
@@ -139,46 +132,26 @@ function KPIFinanciers() {
 
     try {
       if (editingId) {
-        // Mise à jour
-        const { data, error } = await supabase
-          .from('kpi_financiers')
-          .update(newKPI)
-          .eq('id', editingId)
-          .select();
-
-        if (error) {
-          console.error('Erreur mise à jour:', error);
-          showError('Erreur: ' + error.message);
-        } else {
-          console.log('KPI mis à jour:', data);
-          success('KPI modifié avec succès');
-          setEditingId(null);
-          setShowEditModal(false);
-          setForm(initialKPI);
-          loadKPIs();
-        }
+        // Mise à jour via db wrapper
+        await db.updateKPI(editingId, newKPI);
+        success('KPI modifié avec succès');
+        setEditingId(null);
+        setShowEditModal(false);
+        setForm(initialKPI);
+        loadKPIs();
       } else {
-        // Insertion nouvelle
-        const { data, error } = await supabase
-          .from('kpi_financiers')
-          .insert([newKPI])
-          .select();
-
-        if (error) {
-          console.error('Erreur sauvegarde:', error);
-          showError('Erreur: ' + error.message);
-        } else {
-          console.log('KPI sauvegardé avec succès:', data);
-          setKpiList([data[0], ...kpiList]);
-          setForm(initialKPI);
-          success('KPI enregistré avec succès');
-          // Recharger depuis Supabase pour sync
-          loadKPIs();
-        }
+        // Insertion nouvelle via db wrapper
+        const data = await db.addKPI(newKPI);
+        console.log('✅ KPI sauvegardé avec succès:', data);
+        setKpiList([data, ...kpiList]);
+        setForm(initialKPI);
+        success('KPI enregistré avec succès');
+        // Recharger depuis Supabase pour sync
+        loadKPIs();
       }
     } catch (err) {
-      console.error('Erreur:', err);
-      alert('Erreur: ' + err.message);
+      console.error('❌ Erreur:', err);
+      showError('Erreur: ' + err.message);
     }
   };
 
@@ -200,21 +173,11 @@ function KPIFinanciers() {
     if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce KPI ?')) return;
 
     try {
-      const { error } = await supabase
-        .from('kpi_financiers')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        console.error('Erreur suppression:', error);
-        showError('Erreur: ' + error.message);
-      } else {
-        console.log('KPI supprimé');
-        success('KPI supprimé avec succès');
-        loadKPIs();
-      }
+      await db.deleteKPI(id);
+      success('KPI supprimé avec succès');
+      loadKPIs();
     } catch (err) {
-      console.error('Erreur:', err);
+      console.error('❌ Erreur suppression:', err);
       showError('Erreur: ' + err.message);
     }
   };

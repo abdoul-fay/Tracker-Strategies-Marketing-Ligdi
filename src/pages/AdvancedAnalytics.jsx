@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { LineChart, Line, Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { db } from '../lib/supabase'
 import { predictFutureTrend, generateInsights, detectAnomalies } from '../lib/predictions'
 import { generateAdaptiveAlerts, calculateAdaptiveThresholds, evaluateStrategySuccess } from '../lib/adaptiveAlerts'
 import './AdvancedAnalytics.css'
@@ -16,15 +17,29 @@ const formatNumber = (num) => {
 export default function AdvancedAnalytics({ campagnes = [] }) {
   const [predictionMonths, setPredictionMonths] = useState(3)
   const [selectedMetric, setSelectedMetric] = useState('budget')
+  const [kpiSettings, setKpiSettings] = useState({})
 
-  // Charger les paramètres KPI
-  const kpiSettings = useMemo(() => {
-    try {
-      const saved = localStorage.getItem('kpiSettings')
-      return saved ? JSON.parse(saved) : {}
-    } catch {
-      return {}
+  // Charger les paramètres KPI depuis Supabase
+  useEffect(() => {
+    const loadKPISettings = async () => {
+      try {
+        const settings = await db.getKPISettings()
+        if (settings) {
+          // Convertir les noms de colonnes Supabase en noms de variables JS
+          setKpiSettings({
+            roiTarget: settings.roi_target || 200,
+            reachTarget: settings.reach_target || 10000,
+            budgetMaxPerCampaign: settings.budget_max_per_campaign || 100000,
+            budgetMaxGlobal: settings.budget_max_global || 500000,
+            engagementTarget: settings.engagement_target || 5,
+            costPerResultMax: settings.cost_per_result_max || 50
+          })
+        }
+      } catch (err) {
+        console.error('❌ Erreur chargement KPI settings:', err)
+      }
     }
+    loadKPISettings()
   }, [])
 
   // Calculer l'historique mensuel

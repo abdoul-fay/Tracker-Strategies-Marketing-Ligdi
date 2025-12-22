@@ -6,9 +6,16 @@ import { useState } from 'react'
  * Système d'alertes avancées pour les seuils marketing
  * Retourne les alertes basées sur les données de campagnes + ML
  */
-export function generateAlerts(campagnes = []) {
+export function generateAlerts(campagnes = [], kpiSettings = null) {
   const alerts = []
-  const thresholds = CONFIG.ALERT_THRESHOLDS
+  
+  // Utiliser les paramètres KPI fournis ou les defaults du CONFIG
+  const thresholds = kpiSettings ? {
+    maxBudgetPerCampaign: kpiSettings.budget_max_per_campaign || kpiSettings.budgetMaxPerCampaign || 100000,
+    maxTotalBudget: kpiSettings.budget_max_global || kpiSettings.budgetMaxGlobal || 500000,
+    minROI: (kpiSettings.roi_target || kpiSettings.roiTarget || 200) * 0.5,
+    maxBudgetDeviation: 20,
+  } : CONFIG.ALERT_THRESHOLDS
 
   if (!campagnes || campagnes.length === 0) return alerts
 
